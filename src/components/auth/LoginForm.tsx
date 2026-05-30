@@ -3,7 +3,7 @@ import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import Button from '../ui/Button';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../ui/Toast';
-
+import { supabase } from '../../lib/supabase';
 
 
 interface LoginFormProps {
@@ -37,7 +37,22 @@ export default function LoginForm({
       const { error } = await signIn(email, password);
 
       if (error) {
-        setError(error.message);
+        if (error.message === 'Invalid login credentials') {
+          // Attempt to check if the email exists in the system
+          const { data } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('email', email)
+            .maybeSingle();
+
+          if (data) {
+            setError('Incorrect password. Please try again.');
+          } else {
+            setError('Email not registered. Sign up to login.');
+          }
+        } else {
+          setError(error.message);
+        }
       } else {
         showToast('Successfully logged in!', 'success');
         onSuccess?.();
