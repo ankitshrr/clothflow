@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import Button from '../ui/Button';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../ui/Toast';
 
 
 
@@ -22,6 +23,7 @@ export default function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signIn, signInWithGoogle } = useAuth();
+  const { showToast } = useToast();
 
 
 
@@ -37,6 +39,7 @@ export default function LoginForm({
       if (error) {
         setError(error.message);
       } else {
+        showToast('Successfully logged in!', 'success');
         onSuccess?.();
       }
     } catch (err: any) {
@@ -122,6 +125,8 @@ export default function LoginForm({
           if (error) {
             setError(error.message);
             setLoading(false);
+          } else {
+            showToast('Successfully logged in!', 'success');
           }
         }}
         disabled={loading}

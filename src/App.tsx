@@ -157,11 +157,11 @@ function App() {
     <Router>
       <ThemeProvider>
         <AuthProvider>
-          <CartProvider>
-            <ToastProvider>
+          <ToastProvider>
+            <CartProvider>
               <AppContent />
-            </ToastProvider>
-          </CartProvider>
+            </CartProvider>
+          </ToastProvider>
         </AuthProvider>
       </ThemeProvider>
     </Router>

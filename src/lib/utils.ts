@@ -6,10 +6,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(price);
+  return `Rs. ${new Intl.NumberFormat('en-IN', {
+    maximumFractionDigits: 2,
+  }).format(price)}`;
 }
 
 export function formatDate(date: string): string {

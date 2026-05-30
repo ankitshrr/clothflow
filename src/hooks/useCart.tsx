@@ -2,6 +2,7 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import type { CartItemWithDetails, Product, ProductSize, ProductColor } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './useAuth';
+import { useToast } from '../components/ui/Toast';
 
 interface CartContextType {
   items: CartItemWithDetails[];
@@ -20,6 +21,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItemWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { showToast } = useToast();
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => {
@@ -63,7 +65,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   const addToCart = async (product: Product, size?: ProductSize, color?: ProductColor, quantity: number = 1) => {
-    if (!user) throw new Error('Please sign in to add items to cart');
+    if (!user) {
+      showToast('Please sign in to add items to cart', 'error');
+      throw new Error('Please sign in to add items to cart');
+    }
 
     const existingItem = items.find(
       (item) =>
@@ -74,6 +79,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     if (existingItem) {
       await updateQuantity(existingItem.id, existingItem.quantity + quantity);
+      showToast('Added to cart', 'success');
     } else {
       const { error } = await supabase.from('cart_items').insert({
         user_id: user.id,
@@ -85,6 +91,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       if (!error) {
         await fetchCart();
+        showToast('Added to cart', 'success');
+      } else {
+        showToast('Failed to add to cart', 'error');
       }
     }
   };

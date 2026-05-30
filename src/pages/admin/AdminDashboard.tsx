@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Package, ShoppingBag, DollarSign, ArrowRight, HelpCircle } from 'lucide-react';
+import { Package, ShoppingBag, Wallet, ArrowRight, HelpCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { formatPrice, formatDate } from '../../lib/utils';
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
     {
       title: 'Total Revenue',
       value: formatPrice(stats.totalRevenue),
-      icon: DollarSign,
+      icon: Wallet,
       href: '/admin/orders',
       color: 'bg-yellow-50 text-yellow-600 dark:bg-yellow-950/20 dark:text-yellow-400',
     },
