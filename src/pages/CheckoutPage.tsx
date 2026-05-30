@@ -19,6 +19,8 @@ export default function CheckoutPage() {
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cod'>('card');
+  const isRetailOnly = items.every((item) => item.product.product_type !== 'wholesale');
 
   const [shippingInfo, setShippingInfo] = useState({
     firstName: '',
@@ -128,6 +130,7 @@ export default function CheckoutPage() {
           total,
           shipping_address: shippingInfo,
           billing_address: billingAddress,
+          notes: paymentMethod === 'cod' ? 'Payment Method: Cash on Delivery' : 'Payment Method: Credit Card',
         })
         .select()
         .maybeSingle();
@@ -312,35 +315,61 @@ export default function CheckoutPage() {
               <div className="bg-white rounded-lg shadow-sm p-8">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Payment Information</h2>
                 <div className="space-y-6">
-                  <div className="border rounded-lg p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <CreditCard className="w-6 h-6 text-gray-600" />
-                      <span className="font-semibold">Credit Card</span>
+                  {isRetailOnly && (
+                    <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                      <label className={`flex-1 border rounded-lg p-4 cursor-pointer flex flex-col items-center gap-2 transition-colors ${paymentMethod === 'card' ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                        <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} className="sr-only" />
+                        <CreditCard className={`w-6 h-6 ${paymentMethod === 'card' ? 'text-gray-900' : 'text-gray-500'}`} />
+                        <span className={`font-medium ${paymentMethod === 'card' ? 'text-gray-900' : 'text-gray-600'}`}>Credit Card</span>
+                      </label>
+                      <label className={`flex-1 border rounded-lg p-4 cursor-pointer flex flex-col items-center gap-2 transition-colors ${paymentMethod === 'cod' ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                        <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="sr-only" />
+                        <div className={`w-6 h-6 flex items-center justify-center font-bold text-lg ${paymentMethod === 'cod' ? 'text-gray-900' : 'text-gray-500'}`}>$</div>
+                        <span className={`font-medium ${paymentMethod === 'cod' ? 'text-gray-900' : 'text-gray-600'}`}>Cash on Delivery</span>
+                      </label>
                     </div>
+                  )}
 
-                    <div className="space-y-4">
-                      <Input label="Card Number" placeholder="1234 5678 9012 3456" />
-                      <div className="grid grid-cols-2 gap-4">
-                        <Input label="Expiry Date" placeholder="MM/YY" />
-                        <Input label="CVV" placeholder="123" />
+                  {paymentMethod === 'card' && (
+                    <div className="border rounded-lg p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <CreditCard className="w-6 h-6 text-gray-600" />
+                        <span className="font-semibold">Credit Card Details</span>
                       </div>
-                      <Input label="Name on Card" placeholder="John Doe" />
-                    </div>
-                  </div>
 
-                  <div className="border rounded-lg p-4">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={billingInfo.sameAsShipping}
-                        onChange={(e) =>
-                          setBillingInfo({ ...billingInfo, sameAsShipping: e.target.checked })
-                        }
-                        className="h-4 w-4"
-                      />
-                      <span className="text-gray-700">Billing address same as shipping</span>
-                    </label>
-                  </div>
+                      <div className="space-y-4">
+                        <Input label="Card Number" placeholder="1234 5678 9012 3456" />
+                        <div className="grid grid-cols-2 gap-4">
+                          <Input label="Expiry Date" placeholder="MM/YY" />
+                          <Input label="CVV" placeholder="123" />
+                        </div>
+                        <Input label="Name on Card" placeholder="John Doe" />
+                      </div>
+                    </div>
+                  )}
+
+                  {paymentMethod === 'cod' && (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                      <p className="text-gray-700 font-medium">You will pay {formatPrice(total)} in cash upon delivery.</p>
+                      <p className="text-sm text-gray-500 mt-2">Please have the exact amount ready.</p>
+                    </div>
+                  )}
+
+                  {paymentMethod === 'card' && (
+                    <div className="border rounded-lg p-4">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={billingInfo.sameAsShipping}
+                          onChange={(e) =>
+                            setBillingInfo({ ...billingInfo, sameAsShipping: e.target.checked })
+                          }
+                          className="h-4 w-4"
+                        />
+                        <span className="text-gray-700">Billing address same as shipping</span>
+                      </label>
+                    </div>
+                  )}
 
                   <Button
                     onClick={handlePlaceOrder}
