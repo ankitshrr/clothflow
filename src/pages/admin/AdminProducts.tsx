@@ -747,12 +747,12 @@ export default function AdminProducts() {
   return (
     <div className="space-y-6">
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Products</h1>
           <p className="text-gray-600">{products.length} products total</p>
         </div>
-        <Button onClick={handleAddClick}>
+        <Button onClick={handleAddClick} className="w-full sm:w-auto justify-center">
           <Plus className="w-4 h-4 mr-2" />
           Add Product
         </Button>
@@ -772,11 +772,11 @@ export default function AdminProducts() {
             />
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
+              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900 w-full sm:w-auto"
             >
               <option value="all">All Categories</option>
               {categories.map((cat) => (
@@ -789,7 +789,7 @@ export default function AdminProducts() {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
+              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900 w-full sm:w-auto"
             >
               <option value="all">All Types</option>
               <option value="retail">Retail Only</option>
@@ -805,20 +805,20 @@ export default function AdminProducts() {
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50">
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Product</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Category</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Type</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Pricing / MOQ</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Status</th>
-              <th className="text-right py-4 px-6 font-medium text-gray-700">Actions</th>
+              <th className="text-left py-4 px-4 sm:px-6 font-medium text-gray-700">Product</th>
+              <th className="hidden lg:table-cell text-left py-4 px-6 font-medium text-gray-700">Category</th>
+              <th className="hidden md:table-cell text-left py-4 px-6 font-medium text-gray-700">Type</th>
+              <th className="hidden sm:table-cell text-left py-4 px-6 font-medium text-gray-700">Pricing / MOQ</th>
+              <th className="hidden sm:table-cell text-left py-4 px-6 font-medium text-gray-700">Status</th>
+              <th className="text-right py-4 px-4 sm:px-6 font-medium text-gray-700">Actions</th>
             </tr>
           </thead>
           <tbody>
             {products.map((product) => (
               <tr key={product.id} className="border-b hover:bg-gray-50">
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                <td className="py-4 px-4 sm:px-6">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-16 sm:w-16 sm:h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                       {product.images[0] ? (
                         <img
                           src={product.images[0].image_url}
@@ -827,20 +827,35 @@ export default function AdminProducts() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-6 h-6 text-gray-400" />
+                          <Package className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
                         </div>
                       )}
                     </div>
                     <div>
                       <p className="font-medium text-gray-900 line-clamp-1">{product.name}</p>
-                      <p className="text-sm text-gray-500">{product.sku || 'No SKU'}</p>
+                      <p className="text-xs sm:text-sm text-gray-500">{product.sku || 'No SKU'}</p>
+                      {/* Mobile-only info */}
+                      <div className="sm:hidden mt-1 flex flex-col gap-1">
+                        <span className={`inline-block px-2 py-0.5 text-[10px] font-semibold rounded w-fit ${
+                          product.product_type === 'wholesale' 
+                            ? 'bg-purple-100 text-purple-700' 
+                            : product.product_type === 'both' 
+                              ? 'bg-emerald-100 text-emerald-700' 
+                              : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {product.product_type}
+                        </span>
+                        <p className="text-xs font-medium text-gray-900">
+                          {product.product_type === 'wholesale' ? `MOQ: ${product.moq}` : formatPrice(product.base_price)}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </td>
-                <td className="py-4 px-6 text-gray-600">
+                <td className="hidden lg:table-cell py-4 px-6 text-gray-600">
                   {product.category?.name || '-'}
                 </td>
-                <td className="py-4 px-6">
+                <td className="hidden md:table-cell py-4 px-6">
                   <span className={`px-2 py-0.5 text-xs font-semibold rounded ${
                     product.product_type === 'wholesale' 
                       ? 'bg-purple-100 text-purple-700' 
@@ -851,7 +866,7 @@ export default function AdminProducts() {
                     {product.product_type}
                   </span>
                 </td>
-                <td className="py-4 px-6">
+                <td className="hidden sm:table-cell py-4 px-6">
                   {product.product_type === 'wholesale' ? (
                     <div>
                       <p className="text-sm font-semibold text-gray-900">MOQ: {product.moq} pcs</p>
@@ -873,7 +888,7 @@ export default function AdminProducts() {
                     </div>
                   )}
                 </td>
-                <td className="py-4 px-6">
+                <td className="hidden sm:table-cell py-4 px-6">
                   <span
                     className={`px-2 py-1 text-xs font-medium rounded-full ${
                       product.is_active
@@ -884,7 +899,7 @@ export default function AdminProducts() {
                     {product.is_active ? 'Active' : 'Inactive'}
                   </span>
                 </td>
-                <td className="py-4 px-6">
+                <td className="py-4 px-4 sm:px-6">
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => handleToggleActive(product)}

@@ -192,12 +192,12 @@ export default function AdminCategories() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Categories</h1>
           <p className="text-gray-600">{categories.length} categories total</p>
         </div>
-        <Button onClick={openAddModal}>
+        <Button onClick={openAddModal} className="w-full sm:w-auto justify-center">
           <Plus className="w-4 h-4 mr-2" />
           Add Category
         </Button>
@@ -220,19 +220,19 @@ export default function AdminCategories() {
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50">
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Image</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Name</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Slug</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Parent</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Order</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Status</th>
-              <th className="text-right py-4 px-6 font-medium text-gray-700">Actions</th>
+              <th className="hidden sm:table-cell text-left py-4 px-6 font-medium text-gray-700">Image</th>
+              <th className="text-left py-4 px-4 sm:px-6 font-medium text-gray-700">Category</th>
+              <th className="hidden md:table-cell text-left py-4 px-6 font-medium text-gray-700">Slug</th>
+              <th className="hidden lg:table-cell text-left py-4 px-6 font-medium text-gray-700">Parent</th>
+              <th className="hidden lg:table-cell text-left py-4 px-6 font-medium text-gray-700">Order</th>
+              <th className="hidden sm:table-cell text-left py-4 px-6 font-medium text-gray-700">Status</th>
+              <th className="text-right py-4 px-4 sm:px-6 font-medium text-gray-700">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredCategories.map((category) => (
               <tr key={category.id} className="border-b hover:bg-gray-50">
-                <td className="py-4 px-6">
+                <td className="hidden sm:table-cell py-4 px-6">
                   <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden">
                     {category.image_url ? (
                       <img
@@ -247,19 +247,28 @@ export default function AdminCategories() {
                     )}
                   </div>
                 </td>
-                <td className="py-4 px-6 font-medium text-gray-900">
-                  {category.name}
+                <td className="py-4 px-4 sm:px-6">
+                  <div className="font-medium text-gray-900">{category.name}</div>
+                  {/* Mobile details */}
+                  <div className="sm:hidden flex flex-col gap-1 mt-1">
+                    <span className="text-xs text-gray-500">Slug: {category.slug}</span>
+                    <span className={`inline-block px-2 py-0.5 text-[10px] font-medium rounded-full w-fit ${
+                      category.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {category.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
                 </td>
-                <td className="py-4 px-6 text-gray-500 text-sm">
+                <td className="hidden md:table-cell py-4 px-6 text-gray-500 text-sm">
                   {category.slug}
                 </td>
-                <td className="py-4 px-6 text-gray-600">
+                <td className="hidden lg:table-cell py-4 px-6 text-gray-600">
                   {getParentName(category.parent_id)}
                 </td>
-                <td className="py-4 px-6 text-gray-600">
+                <td className="hidden lg:table-cell py-4 px-6 text-gray-600">
                   {category.display_order ?? 0}
                 </td>
-                <td className="py-4 px-6">
+                <td className="hidden sm:table-cell py-4 px-6">
                   <button
                     onClick={() => handleToggleActive(category)}
                     className={`px-2 py-1 text-xs font-medium rounded-full cursor-pointer ${
@@ -271,7 +280,7 @@ export default function AdminCategories() {
                     {category.is_active ? 'Active' : 'Inactive'}
                   </button>
                 </td>
-                <td className="py-4 px-6">
+                <td className="py-4 px-4 sm:px-6">
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => openEditModal(category)}

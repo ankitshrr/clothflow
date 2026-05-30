@@ -200,14 +200,14 @@ export default function AdminInquiries() {
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50">
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Customer</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Email</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Product</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Qty</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Type</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Status</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Date</th>
-              <th className="text-right py-4 px-6 font-medium text-gray-700">Actions</th>
+              <th className="text-left py-4 px-4 sm:px-6 font-medium text-gray-700">Customer</th>
+              <th className="hidden md:table-cell text-left py-4 px-6 font-medium text-gray-700">Email</th>
+              <th className="text-left py-4 px-4 sm:px-6 font-medium text-gray-700">Product</th>
+              <th className="hidden sm:table-cell text-left py-4 px-6 font-medium text-gray-700">Qty</th>
+              <th className="hidden lg:table-cell text-left py-4 px-6 font-medium text-gray-700">Type</th>
+              <th className="text-left py-4 px-4 sm:px-6 font-medium text-gray-700">Status</th>
+              <th className="hidden md:table-cell text-left py-4 px-6 font-medium text-gray-700">Date</th>
+              <th className="text-right py-4 px-4 sm:px-6 font-medium text-gray-700">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -217,34 +217,46 @@ export default function AdminInquiries() {
                 className="border-b hover:bg-gray-50 cursor-pointer"
                 onClick={() => openDetail(inquiry)}
               >
-                <td className="py-4 px-6 font-medium text-gray-900">
-                  {inquiry.name}
+                <td className="py-4 px-4 sm:px-6">
+                  <div className="font-medium text-gray-900">{inquiry.name}</div>
+                  <div className="md:hidden flex flex-col gap-1 mt-1 text-xs text-gray-500">
+                    <span>{inquiry.email}</span>
+                    <span>{formatDate(inquiry.created_at)}</span>
+                  </div>
                 </td>
-                <td className="py-4 px-6 text-gray-600 text-sm">{inquiry.email}</td>
-                <td className="py-4 px-6 text-gray-600 text-sm">
-                  {inquiry.product?.name || '—'}
+                <td className="hidden md:table-cell py-4 px-6 text-gray-600 text-sm">{inquiry.email}</td>
+                <td className="py-4 px-4 sm:px-6">
+                  <div className="text-gray-900 text-sm">{inquiry.product?.name || '—'}</div>
+                  <div className="sm:hidden flex flex-col gap-1 mt-1 text-xs text-gray-500">
+                    <span>Qty: {inquiry.quantity ?? '—'}</span>
+                    {inquiry.inquiry_type && (
+                      <span className="inline-block px-1.5 py-0.5 font-medium rounded-full bg-purple-100 text-purple-700 w-fit">
+                        {inquiry.inquiry_type}
+                      </span>
+                    )}
+                  </div>
                 </td>
-                <td className="py-4 px-6 text-gray-600">{inquiry.quantity ?? '—'}</td>
-                <td className="py-4 px-6">
+                <td className="hidden sm:table-cell py-4 px-6 text-gray-600">{inquiry.quantity ?? '—'}</td>
+                <td className="hidden lg:table-cell py-4 px-6">
                   {inquiry.inquiry_type && (
                     <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
                       {inquiry.inquiry_type}
                     </span>
                   )}
                 </td>
-                <td className="py-4 px-6">
+                <td className="py-4 px-4 sm:px-6">
                   <span
-                    className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    className={`px-2 py-1 text-[10px] sm:text-xs font-medium rounded-full ${
                       statusColors[inquiry.status] || 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     {statusLabels[inquiry.status] || inquiry.status}
                   </span>
                 </td>
-                <td className="py-4 px-6 text-gray-500 text-sm">
+                <td className="hidden md:table-cell py-4 px-6 text-gray-500 text-sm">
                   {formatDate(inquiry.created_at)}
                 </td>
-                <td className="py-4 px-6">
+                <td className="py-4 px-4 sm:px-6">
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={(e) => {

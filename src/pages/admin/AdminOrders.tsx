@@ -98,8 +98,8 @@ export default function AdminOrders() {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-4">
-        <div className="flex gap-4">
-          <div className="flex-1 relative">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1 relative w-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
@@ -112,7 +112,7 @@ export default function AdminOrders() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
+            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900 w-full sm:w-auto"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -128,31 +128,35 @@ export default function AdminOrders() {
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50">
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Order</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Date</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Items</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Total</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Status</th>
-              <th className="text-left py-4 px-6 font-medium text-gray-700">Payment</th>
-              <th className="text-right py-4 px-6 font-medium text-gray-700">Actions</th>
+              <th className="text-left py-4 px-4 sm:px-6 font-medium text-gray-700">Order</th>
+              <th className="hidden md:table-cell text-left py-4 px-6 font-medium text-gray-700">Date</th>
+              <th className="hidden sm:table-cell text-left py-4 px-6 font-medium text-gray-700">Items</th>
+              <th className="hidden sm:table-cell text-left py-4 px-6 font-medium text-gray-700">Total</th>
+              <th className="text-left py-4 px-4 sm:px-6 font-medium text-gray-700">Status</th>
+              <th className="hidden lg:table-cell text-left py-4 px-6 font-medium text-gray-700">Payment</th>
+              <th className="text-right py-4 px-4 sm:px-6 font-medium text-gray-700">Actions</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order) => (
               <tr key={order.id} className="border-b hover:bg-gray-50">
-                <td className="py-4 px-6">
+                <td className="py-4 px-4 sm:px-6">
                   <p className="font-medium text-gray-900">{order.order_number}</p>
+                  <div className="sm:hidden flex flex-col gap-1 mt-1 text-sm text-gray-500">
+                    <span>{formatDate(order.created_at)}</span>
+                    <span className="font-medium text-gray-900">{formatPrice(order.total)}</span>
+                  </div>
                 </td>
-                <td className="py-4 px-6 text-gray-600">{formatDate(order.created_at)}</td>
-                <td className="py-4 px-6 text-gray-600">{order.items?.length || 0} items</td>
-                <td className="py-4 px-6 font-medium text-gray-900">
+                <td className="hidden md:table-cell py-4 px-6 text-gray-600">{formatDate(order.created_at)}</td>
+                <td className="hidden sm:table-cell py-4 px-6 text-gray-600">{order.items?.length || 0} items</td>
+                <td className="hidden sm:table-cell py-4 px-6 font-medium text-gray-900">
                   {formatPrice(order.total)}
                 </td>
-                <td className="py-4 px-6">
+                <td className="py-4 px-4 sm:px-6">
                   <select
                     value={order.status}
                     onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
-                    className={`text-xs font-medium rounded-full px-3 py-1 border-0 ${getStatusColor(order.status)}`}
+                    className={`text-xs font-medium rounded-full px-2 sm:px-3 py-1 border-0 ${getStatusColor(order.status)}`}
                   >
                     <option value="pending">Pending</option>
                     <option value="processing">Processing</option>
@@ -161,7 +165,7 @@ export default function AdminOrders() {
                     <option value="cancelled">Cancelled</option>
                   </select>
                 </td>
-                <td className="py-4 px-6">
+                <td className="hidden lg:table-cell py-4 px-6">
                   <span
                     className={`px-2 py-1 text-xs font-medium rounded-full ${
                       order.payment_status === 'paid'
@@ -172,7 +176,7 @@ export default function AdminOrders() {
                     {order.payment_status}
                   </span>
                 </td>
-                <td className="py-4 px-6">
+                <td className="py-4 px-4 sm:px-6">
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => setSelectedOrder(order)}
