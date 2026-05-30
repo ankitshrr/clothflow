@@ -18,7 +18,7 @@ export default function ProductCard({
   onToggleWishlist,
   isWishlisted = false,
 }: ProductCardProps) {
-  const primaryImage = product.images.find((img) => img.is_primary) || product.images[0];
+  const primaryImage = product.images?.find((img) => img.is_primary) || product.images?.[0];
   const discount = calculateDiscount(product.base_price, product.sale_price || 0);
 
   return (
@@ -70,7 +70,7 @@ export default function ProductCard({
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <Link to={`/product/${product.slug}`}>
           <h3 className="font-medium text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors line-clamp-1">
             {product.name}
@@ -84,16 +84,16 @@ export default function ProductCard({
         <div className="mt-2 flex items-center gap-2">
           {product.sale_price ? (
             <>
-              <span className="text-lg font-bold text-gray-900 dark:text-white">
-                Rs. {product.sale_price.toLocaleString()}
+              <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                Rs. {product.sale_price?.toLocaleString() || 0}
               </span>
               <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
-                Rs. {product.base_price.toLocaleString()}
+                Rs. {product.base_price?.toLocaleString() || 0}
               </span>
             </>
           ) : (
-            <span className="text-lg font-bold text-gray-900 dark:text-white">
-              Rs. {product.base_price.toLocaleString()}
+            <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+              Rs. {product.base_price?.toLocaleString() || 0}
             </span>
           )}
         </div>
