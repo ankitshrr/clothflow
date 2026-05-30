@@ -226,7 +226,7 @@ export default function Header({ onAuthClick }: HeaderProps) {
         </div>
 
         {/* Mobile menu */}
-        <div className={`md:hidden transition-all duration-300 overflow-hidden ${mobileMenuOpen ? 'max-h-96 opacity-100 pb-4' : 'max-h-0 opacity-0'}`}>
+        <div className={`md:hidden transition-all duration-300 ${mobileMenuOpen ? 'max-h-[calc(100vh-4rem)] opacity-100 pb-4 overflow-y-auto' : 'max-h-0 opacity-0 overflow-hidden'}`}>
           <div className="border-t border-gray-800 mt-2 pt-4 space-y-1">
             <Link
               to="/"
