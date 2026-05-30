@@ -148,7 +148,7 @@ export default function LoginForm({
         Google
       </button>
 
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex flex-col items-center gap-4 text-sm mt-4">
         <button
           type="button"
           onClick={onForgotPassword}
@@ -156,13 +156,16 @@ export default function LoginForm({
         >
           Forgot password?
         </button>
-        <button
-          type="button"
-          onClick={onSignUpClick}
-          className="text-gray-900 font-medium hover:underline"
-        >
-          Create account
-        </button>
+        <p className="text-gray-600">
+          Don't have an account?{' '}
+          <button
+            type="button"
+            onClick={onSignUpClick}
+            className="text-gray-900 font-medium hover:underline"
+          >
+            Sign up
+          </button>
+        </p>
       </div>
     </form>
   );
