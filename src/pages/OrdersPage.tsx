@@ -22,21 +22,30 @@ export default function OrdersPage() {
   }, [user]);
 
   const fetchOrders = async () => {
-    const { data } = await supabase
-      .from('orders')
-      .select(
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select(
+          `
+          *,
+          items:order_items (*)
         `
-        *,
-        items:order_items (*)
-      `
-      )
-      .eq('user_id', user!.id)
-      .order('created_at', { ascending: false });
+        )
+        .eq('user_id', user!.id)
+        .order('created_at', { ascending: false });
 
-    if (data) {
-      setOrders(data as OrderWithItems[]);
+      if (error) {
+        console.error('Supabase error fetching orders:', error);
+      }
+
+      if (data) {
+        setOrders(data as OrderWithItems[]);
+      }
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const getStatusColor = (status: string) => {

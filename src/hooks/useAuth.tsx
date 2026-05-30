@@ -8,6 +8,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signInWithGoogle: () => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
@@ -18,46 +19,126 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(() => {
+    try {
+      const cached = localStorage.getItem('user_profile');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .maybeSingle();
-        setProfile(data);
+    let mounted = true;
+    const timer = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 5000);
+
+    const loadProfile = async (sessionUser: User) => {
+      try {
+        let { data, error: selectError } = await Promise.race([
+          supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', sessionUser.id)
+            .maybeSingle(),
+          new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Profile fetch timed out')), 8000))
+        ]);
+
+        if (selectError) console.error('Select profile error:', selectError);
+
+        if (!data) {
+          const { data: newProfile, error: upsertError } = await Promise.race([
+            supabase
+              .from('profiles')
+              .upsert({
+                id: sessionUser.id,
+                email: sessionUser.email,
+                full_name: sessionUser.user_metadata?.full_name || '',
+              }, { onConflict: 'id' })
+              .select()
+              .single(),
+            new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Profile upsert timed out')), 8000))
+          ]);
+
+          if (upsertError) {
+            console.error('Upsert profile error:', upsertError);
+            data = { role: 'ERROR: ' + upsertError.message } as any;
+          } else {
+            data = newProfile;
+          }
+        }
+        if (mounted) {
+          setProfile(data);
+          localStorage.setItem('user_profile', JSON.stringify(data));
+        }
+      } catch (err) {
+        console.error('loadProfile error:', err);
       }
-      setLoading(false);
+    };
+
+    (async () => {
+      try {
+        const { data: { session } } = await Promise.race([
+          supabase.auth.getSession(),
+          new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Get session timed out')), 8000))
+        ]);
+        if (!mounted) return;
+        
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          await loadProfile(session.user);
+        }
+      } catch (err) {
+        console.error('Auth init error:', err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     })();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle();
-          setProfile(data);
-        } else {
-          setProfile(null);
+      async (_event: any, session: any) => {
+        if (!mounted) return;
+        try {
+          setUser(session?.user ?? null);
+          if (session?.user) {
+            await loadProfile(session.user);
+          } else {
+            setProfile(null);
+            localStorage.removeItem('user_profile');
+          }
+        } catch (err) {
+          console.error('Auth state change error:', err);
+        } finally {
+          if (mounted) setLoading(false);
         }
-        setLoading(false);
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    return Promise.race([
+      supabase.auth.signInWithPassword({ email, password }).then(({ error }) => ({ error })),
+      new Promise<{ error: Error }>((resolve) => 
+        setTimeout(() => resolve({ error: new Error('Request timed out. Please check if an adblocker is blocking the connection.') }), 8000)
+      )
+    ]);
+  };
+
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
     return { error };
   };
 
@@ -73,9 +154,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
+    try {
+      await Promise.race([
+        supabase.auth.signOut(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Sign out timed out')), 5000))
+      ]);
+    } catch (error) {
+      console.error('Sign out error:', error);
+    } finally {
+      // Forcefully clear Supabase auth tokens from localStorage just in case
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+          localStorage.removeItem(key);
+        }
+      }
+      setUser(null);
+      setProfile(null);
+      localStorage.removeItem('user_profile');
+    }
   };
 
   const resetPassword = async (email: string) => {
@@ -92,7 +189,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .eq('id', user.id);
 
     if (!error && profile) {
-      setProfile({ ...profile, ...updates });
+      const updated = { ...profile, ...updates };
+      setProfile(updated);
+      localStorage.setItem('user_profile', JSON.stringify(updated));
     }
 
     return { error };
@@ -100,7 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, profile, loading, signIn, signUp, signOut, resetPassword, updateProfile }}
+      value={{ user, profile, loading, signIn, signInWithGoogle, signUp, signOut, resetPassword, updateProfile }}
     >
       {children}
     </AuthContext.Provider>

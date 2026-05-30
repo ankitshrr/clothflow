@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart } from 'lucide-react';
 import type { ProductWithDetails } from '../../types';
-import { formatPrice, calculateDiscount } from '../../lib/utils';
+import { calculateDiscount } from '../../lib/utils';
+
 import Button from '../ui/Button';
 
 interface ProductCardProps {

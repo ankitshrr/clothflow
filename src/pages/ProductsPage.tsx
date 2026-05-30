@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { ProductWithDetails, Category } from '../types';
 import { ProductGrid } from '../components/product';
 import { useCart } from '../hooks/useCart';
-import { useAuth } from '../hooks/useAuth';
-import { Filter, SortAsc } from 'lucide-react';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<ProductWithDetails[]>([]);
@@ -12,14 +11,15 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('newest');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
   const { addToCart } = useCart();
-  const { user } = useAuth();
+
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-  }, [selectedCategory, sortBy]);
+  }, [selectedCategory, sortBy, searchQuery]);
 
   const fetchCategories = async () => {
     const { data } = await supabase
@@ -50,6 +50,10 @@ export default function ProductsPage() {
 
     if (selectedCategory !== 'all') {
       query = query.eq('category_id', selectedCategory);
+    }
+
+    if (searchQuery) {
+      query = query.ilike('name', `%${searchQuery}%`);
     }
 
     switch (sortBy) {

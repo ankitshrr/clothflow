@@ -17,6 +17,7 @@ export type OrderItem = Tables<'order_items'>;
 export type StoreLocation = Tables<'store_locations'>;
 export type Review = Tables<'reviews'>;
 export type Wishlist = Tables<'wishlists'>;
+export type Inquiry = Tables<'inquiries'>;
 
 export interface ProductWithDetails extends Product {
   category: Category | null;
@@ -38,6 +39,12 @@ export interface OrderWithItems extends Order {
 
 export interface CategoryWithProducts extends Category {
   products: Product[];
+}
+
+export interface InquiryWithProduct extends Inquiry {
+  product: Product;
+  size: ProductSize | null;
+  color: ProductColor | null;
 }
 
 export interface User {

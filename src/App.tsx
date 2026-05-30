@@ -16,8 +16,18 @@ import {
   StoresPage,
   OrdersPage,
   AccountPage,
+  WholesalePage,
+  WholesaleProductDetailPage,
 } from './pages';
-import { AdminDashboard, AdminProducts, AdminOrders, AdminStores } from './pages/admin';
+import {
+  AdminDashboard,
+  AdminProducts,
+  AdminOrders,
+  AdminStores,
+  AdminCategories,
+  AdminInquiries,
+  AdminLayout,
+} from './pages/admin';
 import { useState } from 'react';
 
 function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) {
@@ -45,18 +55,20 @@ function AppContent() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors">
       <Routes>
         <Route
-          path="/admin/*"
+          path="/admin"
           element={
             <ProtectedRoute adminOnly>
-              <Routes>
-                <Route index element={<AdminDashboard />} />
-                <Route path="products" element={<AdminProducts />} />
-                <Route path="orders" element={<AdminOrders />} />
-                <Route path="stores" element={<AdminStores />} />
-              </Routes>
+              <AdminLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="stores" element={<AdminStores />} />
+          <Route path="categories" element={<AdminCategories />} />
+          <Route path="inquiries" element={<AdminInquiries />} />
+        </Route>
         <Route
           path="/*"
           element={
@@ -68,6 +80,8 @@ function AppContent() {
                   <Route path="products" element={<ProductsPage />} />
                   <Route path="category/:slug" element={<CategoryPage />} />
                   <Route path="product/:slug" element={<ProductDetailPage />} />
+                  <Route path="wholesale" element={<WholesalePage />} />
+                  <Route path="wholesale/product/:slug" element={<WholesaleProductDetailPage />} />
                   <Route path="cart" element={<CartPage />} />
                   <Route
                     path="checkout"

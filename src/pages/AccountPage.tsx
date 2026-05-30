@@ -5,12 +5,12 @@ import Button from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
 
 export default function AccountPage() {
-  const { profile, updateProfile } = useAuth();
+  const { profile, user, updateProfile } = useAuth();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    full_name: profile?.full_name || '',
-    email: profile?.email || '',
+    full_name: profile?.full_name || user?.user_metadata?.full_name || '',
+    email: profile?.email || user?.email || '',
     phone: profile?.phone || '',
   });
 
@@ -32,7 +32,7 @@ export default function AccountPage() {
     }
   };
 
-  if (!profile) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

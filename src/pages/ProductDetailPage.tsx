@@ -5,8 +5,8 @@ import { supabase } from '../lib/supabase';
 import type { ProductWithDetails, Review, StoreLocation } from '../types';
 import { formatPrice, calculateDiscount } from '../lib/utils';
 import { useCart } from '../hooks/useCart';
-import { useAuth } from '../hooks/useAuth';
 import Button from '../components/ui/Button';
+
 import Loading from '../components/ui/Loading';
 
 export default function ProductDetailPage() {
@@ -20,7 +20,6 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [stock, setStock] = useState<number>(0);
   const { addToCart } = useCart();
-  const { user } = useAuth();
 
   useEffect(() => {
     if (slug) {
@@ -84,7 +83,7 @@ export default function ProductDetailPage() {
     if (!product) return;
 
     const sizeObj = product.sizes.find((s) => s.id === selectedSize);
-    const colorObj = product.colors.find((c) => c.id === selectedColor);
+    const colorObj = product.colors.find((c: any) => c.id === selectedColor) as any;
 
     if (!sizeObj && !colorObj && product.sizes.length === 0) {
       const { data } = await supabase
@@ -94,6 +93,7 @@ export default function ProductDetailPage() {
         .is('size_id', null)
         .is('color_id', colorObj ? colorObj.id : null)
         .maybeSingle();
+
 
       if (data) setStock(data.quantity);
     } else if (selectedSize && selectedColor) {

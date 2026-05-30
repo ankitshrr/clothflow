@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+
 import { ArrowLeft, CreditCard, Check } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
@@ -11,10 +12,10 @@ import Loading from '../components/ui/Loading';
 import { useToast } from '../components/ui/Toast';
 
 export default function CheckoutPage() {
-  const navigate = useNavigate();
   const { items, subtotal, clearCart } = useCart();
   const { user } = useAuth();
   const { showToast } = useToast();
+
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -342,13 +343,14 @@ export default function CheckoutPage() {
                   </div>
 
                   <Button
-                    onClick={() => setStep(3)}
+                    onClick={handlePlaceOrder}
                     size="lg"
                     className="w-full"
                     disabled={loading}
                   >
                     {loading ? <Loading /> : 'Place Order'}
                   </Button>
+
                 </div>
               </div>
             )}

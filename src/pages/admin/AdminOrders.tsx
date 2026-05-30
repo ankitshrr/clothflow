@@ -59,11 +59,12 @@ export default function AdminOrders() {
     if (!error) {
       setOrders(
         orders.map((order) =>
-          order.id === orderId ? { ...order, status: newStatus } : order
+          order.id === orderId ? { ...order, status: newStatus as any } : order
         )
       );
       showToast('Order status updated', 'success');
     }
+
   };
 
   const getStatusColor = (status: string) => {
