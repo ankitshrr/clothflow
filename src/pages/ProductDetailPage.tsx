@@ -6,6 +6,7 @@ import type { ProductWithDetails, Review, StoreLocation } from '../types';
 import { formatPrice, calculateDiscount } from '../lib/utils';
 import { useCart } from '../hooks/useCart';
 import Button from '../components/ui/Button';
+import { useToast } from '../components/ui/Toast';
 
 import Loading from '../components/ui/Loading';
 
@@ -17,9 +18,13 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [stock, setStock] = useState<number>(0);
+  const [sizeError, setSizeError] = useState(false);
+  const [colorError, setColorError] = useState(false);
   const { addToCart } = useCart();
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (slug) {
@@ -82,41 +87,55 @@ export default function ProductDetailPage() {
   const checkStock = async () => {
     if (!product) return;
 
-    const sizeObj = product.sizes.find((s) => s.id === selectedSize);
-    const colorObj = product.colors.find((c: any) => c.id === selectedColor) as any;
+    let query = supabase
+      .from('inventory')
+      .select('quantity')
+      .eq('product_id', product.id);
 
-    if (!sizeObj && !colorObj && product.sizes.length === 0) {
-      const { data } = await supabase
-        .from('inventory')
-        .select('quantity')
-        .eq('product_id', product.id)
-        .is('size_id', null)
-        .is('color_id', colorObj ? colorObj.id : null)
-        .maybeSingle();
-
-
-      if (data) setStock(data.quantity);
-    } else if (selectedSize && selectedColor) {
-      const { data } = await supabase
-        .from('inventory')
-        .select('quantity')
-        .eq('product_id', product.id)
-        .eq('size_id', selectedSize)
-        .eq('color_id', selectedColor)
-        .maybeSingle();
-
-      if (data) setStock(data.quantity);
-      else setStock(0);
+    if (product.sizes.length > 0 && selectedSize) {
+      query = query.eq('size_id', selectedSize);
+    } else if (product.sizes.length === 0) {
+      query = query.is('size_id', null);
+    } else {
+      // Size required but not selected
+      return; 
     }
+
+    if (product.colors.length > 0 && selectedColor) {
+      query = query.eq('color_id', selectedColor);
+    } else if (product.colors.length === 0) {
+      query = query.is('color_id', null);
+    } else {
+      // Color required but not selected
+      return;
+    }
+
+    const { data } = await query.maybeSingle();
+
+    if (data) setStock(data.quantity);
+    else setStock(0);
   };
 
   const handleAddToCart = async () => {
     if (!product) return;
 
-    if ((product.sizes.length > 0 || product.colors.length > 0) && (!selectedSize && !selectedColor)) {
-      alert('Please select size and color');
-      return;
+    let hasError = false;
+
+    if (product.sizes.length > 0 && !selectedSize) {
+      setSizeError(true);
+      hasError = true;
+    } else {
+      setSizeError(false);
     }
+
+    if (product.colors.length > 0 && !selectedColor) {
+      setColorError(true);
+      hasError = true;
+    } else {
+      setColorError(false);
+    }
+
+    if (hasError) return;
 
     const size = product.sizes.find((s) => s.id === selectedSize);
     const color = product.colors.find((c) => c.id === selectedColor);
@@ -143,11 +162,32 @@ export default function ProductDetailPage() {
   }
 
   const primaryImage = product.images.find((img) => img.is_primary) || product.images[0];
+  const displayImage = selectedImageId 
+    ? product.images.find(img => img.id === selectedImageId) || primaryImage
+    : primaryImage;
+
+  const handleColorSelect = (colorId: string) => {
+    setSelectedColor(colorId);
+    setColorError(false);
+    const matchingImage = product.images.find((img) => img.color_id === colorId);
+    if (matchingImage) {
+      setSelectedImageId(matchingImage.id);
+    }
+  };
+
+  const handleSizeSelect = (sizeId: string) => {
+    setSelectedSize(sizeId);
+    setSizeError(false);
+  };
+
   const discount = calculateDiscount(product.base_price, product.sale_price || 0);
   const avgRating =
     reviews.length > 0
       ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
       : 0;
+
+  const isSelectionComplete = (!product.sizes.length || selectedSize) && (!product.colors.length || selectedColor);
+  const outOfStock = isSelectionComplete && stock === 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -176,10 +216,10 @@ export default function ProductDetailPage() {
           <div className="grid lg:grid-cols-2 gap-8 p-8">
             <div>
               <div className="aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden">
-                {primaryImage ? (
+                {displayImage ? (
                   <img
-                    src={primaryImage.image_url}
-                    alt={primaryImage.alt_text || product.name}
+                    src={displayImage.image_url}
+                    alt={displayImage.alt_text || product.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -194,7 +234,10 @@ export default function ProductDetailPage() {
                   {product.images.map((image) => (
                     <div
                       key={image.id}
-                      className="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer"
+                      onClick={() => setSelectedImageId(image.id)}
+                      className={`aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer border-2 transition-colors ${
+                        displayImage?.id === image.id ? 'border-gray-900' : 'border-transparent hover:border-gray-300'
+                      }`}
                     >
                       <img
                         src={image.image_url}
@@ -248,12 +291,19 @@ export default function ProductDetailPage() {
 
               {product.colors.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="font-semibold text-gray-900 mb-3">Color</h3>
+                  <div className="flex items-center gap-3 mb-3">
+                    <h3 className="font-semibold text-gray-900">Color</h3>
+                    {colorError && (
+                      <span className="text-xs font-medium text-red-600 bg-red-50 px-2.5 py-1 rounded-full flex items-center">
+                        Please select a color
+                      </span>
+                    )}
+                  </div>
                   <div className="flex gap-2">
                     {product.colors.map((color) => (
                       <button
                         key={color.id}
-                        onClick={() => setSelectedColor(color.id)}
+                        onClick={() => handleColorSelect(color.id)}
                         className={`w-10 h-10 rounded-full border-2 transition-all ${
                           selectedColor === color.id
                             ? 'border-gray-900 ring-2 ring-gray-900 ring-offset-2'
@@ -274,12 +324,19 @@ export default function ProductDetailPage() {
 
               {product.sizes.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="font-semibold text-gray-900 mb-3">Size</h3>
+                  <div className="flex items-center gap-3 mb-3">
+                    <h3 className="font-semibold text-gray-900">Size</h3>
+                    {sizeError && (
+                      <span className="text-xs font-medium text-red-600 bg-red-50 px-2.5 py-1 rounded-full flex items-center">
+                        Please select a size
+                      </span>
+                    )}
+                  </div>
                   <div className="flex gap-2 flex-wrap">
                     {product.sizes.map((size) => (
                       <button
                         key={size.id}
-                        onClick={() => setSelectedSize(size.id)}
+                        onClick={() => handleSizeSelect(size.id)}
                         className={`px-4 py-2 border-2 rounded-lg transition-all ${
                           selectedSize === size.id
                             ? 'border-gray-900 bg-gray-900 text-white'
@@ -329,7 +386,7 @@ export default function ProductDetailPage() {
                   onClick={handleAddToCart}
                   size="lg"
                   className="flex-1"
-                  disabled={stock === 0 && product.sizes.length > 0}
+                  disabled={outOfStock}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Add to Cart

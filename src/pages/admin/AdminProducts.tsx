@@ -12,6 +12,7 @@ interface ImageForm {
   id?: string;
   image_url: string;
   alt_text: string;
+  color_id?: string | null;
   display_order: number;
   is_primary: boolean;
   file?: File;
@@ -204,6 +205,7 @@ export default function AdminProducts() {
         id: img.id,
         image_url: img.image_url,
         alt_text: img.alt_text || '',
+        color_id: img.color_id || null,
         display_order: img.display_order || 0,
         is_primary: img.is_primary || false,
       }))
@@ -288,6 +290,7 @@ export default function AdminProducts() {
           {
             image_url: publicUrl,
             alt_text: file.name,
+            color_id: null,
             display_order: prev.length,
             is_primary: prev.length === 0,
           },
@@ -304,6 +307,7 @@ export default function AdminProducts() {
       {
         image_url: newImageUrl.trim(),
         alt_text: 'Product Image',
+        color_id: null,
         display_order: prev.length,
         is_primary: prev.length === 0,
       },
@@ -320,6 +324,12 @@ export default function AdminProducts() {
       }
       return updated;
     });
+  };
+
+  const handleSetImageColor = (index: number, colorId: string | null) => {
+    setFormImages((prev) =>
+      prev.map((img, i) => (i === index ? { ...img, color_id: colorId } : img))
+    );
   };
 
   const handleSetPrimaryImage = (index: number) => {
@@ -644,6 +654,7 @@ export default function AdminProducts() {
           product_id: productId,
           image_url: img.image_url,
           alt_text: img.alt_text,
+          color_id: img.color_id || null,
           display_order: idx,
           is_primary: img.is_primary,
         };
@@ -801,7 +812,7 @@ export default function AdminProducts() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50">
@@ -1123,7 +1134,7 @@ export default function AdminProducts() {
             {/* IMAGES TAB */}
             {activeTab === 'images' && (
               <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* File Upload Box */}
                   <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-gray-400 transition-colors relative flex flex-col items-center justify-center bg-gray-50">
                     <input
@@ -1150,9 +1161,9 @@ export default function AdminProducts() {
                         value={newImageUrl}
                         onChange={(e) => setNewImageUrl(e.target.value)}
                         placeholder="https://example.com/image.jpg"
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 text-sm"
+                        className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 text-sm"
                       />
-                      <Button onClick={handleAddImageUrl} variant="secondary" size="sm">
+                      <Button onClick={handleAddImageUrl} variant="secondary" size="sm" className="whitespace-nowrap flex-shrink-0">
                         Add URL
                       </Button>
                     </div>
@@ -1167,39 +1178,53 @@ export default function AdminProducts() {
                       No images added yet. Upload files or input URLs above.
                     </div>
                   ) : (
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                       {formImages.map((img, idx) => (
-                        <div key={idx} className="relative group aspect-[3/4] border rounded-xl overflow-hidden bg-gray-150">
-                          <img src={img.image_url} alt="" className="w-full h-full object-cover" />
-                          
-                          {/* Image Actions Overlay */}
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
-                            <button
-                              onClick={() => handleRemoveImage(idx)}
-                              className="self-end bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition-colors"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
+                        <div key={idx} className="relative group border rounded-xl overflow-hidden bg-gray-150 flex flex-col">
+                          <div className="relative aspect-[3/4] w-full">
+                            <img src={img.image_url} alt="" className="w-full h-full object-cover" />
                             
-                            <button
-                              onClick={() => handleSetPrimaryImage(idx)}
-                              className={`w-full py-1 text-xs font-semibold rounded transition-colors ${
-                                img.is_primary
-                                  ? 'bg-emerald-600 text-white'
-                                  : 'bg-white text-gray-900 hover:bg-gray-100'
-                              }`}
-                            >
-                              {img.is_primary ? 'Primary Image' : 'Set Primary'}
-                            </button>
-                          </div>
-
-                          {/* Primary indicator badge */}
-                          {img.is_primary && (
-                            <div className="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm flex items-center gap-0.5">
-                              <Check className="w-3 h-3" />
-                              Primary
+                            {/* Image Actions Overlay */}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                              <button
+                                onClick={() => handleRemoveImage(idx)}
+                                className="self-end bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition-colors"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                              
+                              <button
+                                onClick={() => handleSetPrimaryImage(idx)}
+                                className={`w-full py-1 text-xs font-semibold rounded transition-colors ${
+                                  img.is_primary
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-white text-gray-900 hover:bg-gray-100'
+                                }`}
+                              >
+                                {img.is_primary ? 'Primary Image' : 'Set Primary'}
+                              </button>
                             </div>
-                          )}
+
+                            {/* Primary indicator badge */}
+                            {img.is_primary && (
+                              <div className="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm flex items-center gap-0.5">
+                                <Check className="w-3 h-3" />
+                                Primary
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-2 bg-white border-t">
+                            <select
+                              value={img.color_id || ''}
+                              onChange={(e) => handleSetImageColor(idx, e.target.value || null)}
+                              className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-gray-900"
+                            >
+                              <option value="">No Color Assigned</option>
+                              {formColors.map((c) => (
+                                <option key={c.id} value={c.id}>{c.color_name}</option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1210,9 +1235,9 @@ export default function AdminProducts() {
 
             {/* VARIANTS TAB */}
             {activeTab === 'variants' && (
-              <div className="grid grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Sizes Config */}
-                <div className="space-y-4 border-r pr-6">
+                <div className="space-y-4 md:border-r md:pr-6 pb-6 md:pb-0 border-b md:border-b-0 border-gray-200">
                   <h3 className="text-lg font-bold text-gray-900">Manage Product Sizes</h3>
                   
                   <div className="flex gap-2">
@@ -1221,18 +1246,18 @@ export default function AdminProducts() {
                       value={newSizeLabel}
                       onChange={(e) => setNewSizeLabel(e.target.value)}
                       placeholder="e.g. S, M, XL, 32, 10"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 text-sm"
+                      className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 text-sm"
                     />
                     <select
                       value={newSizeType}
                       onChange={(e) => setNewSizeType(e.target.value as any)}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 text-sm"
+                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 text-sm flex-shrink-0"
                     >
                       <option value="clothing">Clothing</option>
                       <option value="shoes">Shoes</option>
                       <option value="accessories">Accessories</option>
                     </select>
-                    <Button onClick={handleAddSize} variant="secondary" size="sm">Add</Button>
+                    <Button onClick={handleAddSize} variant="secondary" size="sm" className="whitespace-nowrap flex-shrink-0">Add</Button>
                   </div>
 
                   <div className="flex flex-wrap gap-2 pt-2">
@@ -1263,15 +1288,15 @@ export default function AdminProducts() {
                       value={newColorName}
                       onChange={(e) => setNewColorName(e.target.value)}
                       placeholder="e.g. Crimson Red, Jet Black"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 text-sm"
+                      className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 text-sm"
                     />
                     <input
                       type="color"
                       value={newColorHex}
                       onChange={(e) => setNewColorHex(e.target.value)}
-                      className="w-10 h-9 p-0 border border-gray-300 rounded-md cursor-pointer"
+                      className="w-10 h-9 p-0 border border-gray-300 rounded-md cursor-pointer flex-shrink-0"
                     />
-                    <Button onClick={handleAddColor} variant="secondary" size="sm">Add</Button>
+                    <Button onClick={handleAddColor} variant="secondary" size="sm" className="whitespace-nowrap flex-shrink-0">Add</Button>
                   </div>
 
                   <div className="flex flex-wrap gap-2 pt-2">
@@ -1303,8 +1328,8 @@ export default function AdminProducts() {
                   Set inventory quantities and low stock thresholds for each combination of sizes and colors.
                 </p>
 
-                <div className="border rounded-xl overflow-hidden bg-white shadow-sm max-h-[350px] overflow-y-auto">
-                  <table className="w-full text-sm">
+                <div className="border rounded-xl bg-white shadow-sm max-h-[350px] overflow-auto">
+                  <table className="w-full text-sm min-w-[500px]">
                     <thead>
                       <tr className="bg-gray-50 border-b">
                         {formSizes.length > 0 && <th className="text-left py-3 px-4 font-semibold text-gray-700">Size</th>}

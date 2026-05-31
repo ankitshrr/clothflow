@@ -19,8 +19,8 @@ export default function CheckoutPage() {
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cod'>('card');
-  const isRetailOnly = items.every((item) => item.product.product_type !== 'wholesale');
+  const [paymentMethod, setPaymentMethod] = useState<'esewa' | 'cod'>('cod');
+  const isRetailOnly = items.every((item) => !item.product.product_type || item.product.product_type === 'retail');
 
   const [shippingInfo, setShippingInfo] = useState({
     firstName: '',
@@ -130,7 +130,7 @@ export default function CheckoutPage() {
           total,
           shipping_address: shippingInfo,
           billing_address: billingAddress,
-          notes: paymentMethod === 'cod' ? 'Payment Method: Cash on Delivery' : 'Payment Method: Credit Card',
+          notes: paymentMethod === 'cod' ? 'Payment Method: Cash on Delivery' : 'Payment Method: eSewa',
         })
         .select()
         .maybeSingle();
@@ -317,34 +317,35 @@ export default function CheckoutPage() {
                 <div className="space-y-6">
                   {isRetailOnly && (
                     <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                      <label className={`flex-1 border rounded-lg p-4 cursor-pointer flex flex-col items-center gap-2 transition-colors ${paymentMethod === 'card' ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                        <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} className="sr-only" />
-                        <CreditCard className={`w-6 h-6 ${paymentMethod === 'card' ? 'text-gray-900' : 'text-gray-500'}`} />
-                        <span className={`font-medium ${paymentMethod === 'card' ? 'text-gray-900' : 'text-gray-600'}`}>Credit Card</span>
-                      </label>
                       <label className={`flex-1 border rounded-lg p-4 cursor-pointer flex flex-col items-center gap-2 transition-colors ${paymentMethod === 'cod' ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-300'}`}>
                         <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="sr-only" />
                         <div className={`w-6 h-6 flex items-center justify-center font-bold text-lg ${paymentMethod === 'cod' ? 'text-gray-900' : 'text-gray-500'}`}>$</div>
                         <span className={`font-medium ${paymentMethod === 'cod' ? 'text-gray-900' : 'text-gray-600'}`}>Cash on Delivery</span>
                       </label>
+                      <label className={`flex-1 border rounded-lg p-4 cursor-pointer flex flex-col items-center gap-2 transition-colors ${paymentMethod === 'esewa' ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                        <input type="radio" name="payment" value="esewa" checked={paymentMethod === 'esewa'} onChange={() => setPaymentMethod('esewa')} className="sr-only" />
+                        <div className="h-6 flex items-center justify-center">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/f/f3/Esewa_logo.webp" alt="eSewa" className="h-full object-contain" />
+                        </div>
+                        <span className={`font-medium ${paymentMethod === 'esewa' ? 'text-gray-900' : 'text-gray-600'}`}>eSewa</span>
+                      </label>
                     </div>
                   )}
 
-                  {paymentMethod === 'card' && (
-                    <div className="border rounded-lg p-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <CreditCard className="w-6 h-6 text-gray-600" />
-                        <span className="font-semibold">Credit Card Details</span>
-                      </div>
+                  {!isRetailOnly && (
+                    <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6">
+                      <p className="text-yellow-800 text-sm">Wholesale orders must be processed via eSewa or direct inquiry.</p>
+                    </div>
+                  )}
 
-                      <div className="space-y-4">
-                        <Input label="Card Number" placeholder="1234 5678 9012 3456" />
-                        <div className="grid grid-cols-2 gap-4">
-                          <Input label="Expiry Date" placeholder="MM/YY" />
-                          <Input label="CVV" placeholder="123" />
-                        </div>
-                        <Input label="Name on Card" placeholder="John Doe" />
+                  {paymentMethod === 'esewa' && (
+                    <div className="border border-green-200 bg-green-50 rounded-lg p-6 text-center">
+                      <div className="h-12 flex items-center justify-center mx-auto mb-4">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f3/Esewa_logo.webp" alt="eSewa Logo" className="h-full object-contain" />
                       </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">eSewa Payment</h3>
+                      <p className="text-gray-600 font-medium">Coming soon!</p>
+                      <p className="text-sm text-gray-500 mt-2">Integration with eSewa is currently under development.</p>
                     </div>
                   )}
 
@@ -355,7 +356,7 @@ export default function CheckoutPage() {
                     </div>
                   )}
 
-                  {paymentMethod === 'card' && (
+                  {paymentMethod === 'esewa' && (
                     <div className="border rounded-lg p-4">
                       <label className="flex items-center gap-2">
                         <input
@@ -375,9 +376,9 @@ export default function CheckoutPage() {
                     onClick={handlePlaceOrder}
                     size="lg"
                     className="w-full"
-                    disabled={loading}
+                    disabled={loading || paymentMethod === 'esewa'}
                   >
-                    {loading ? <Loading /> : 'Place Order'}
+                    {loading ? <Loading /> : paymentMethod === 'esewa' ? 'Coming Soon' : 'Place Order'}
                   </Button>
 
                 </div>

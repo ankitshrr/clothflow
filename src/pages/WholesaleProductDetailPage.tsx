@@ -97,6 +97,16 @@ export default function WholesaleProductDetailPage() {
     }
   };
 
+  const handleColorSelect = (colorId: string) => {
+    setSelectedColor(colorId);
+    if (product) {
+      const matchingImage = product.images.find((img) => img.color_id === colorId);
+      if (matchingImage) {
+        setActiveImage(matchingImage.image_url);
+      }
+    }
+  };
+
   const openInquiryModal = (type: 'order' | 'inquiry') => {
     setInquiryType(type);
     setModalOpen(true);
@@ -274,7 +284,7 @@ export default function WholesaleProductDetailPage() {
                       {product.colors.map((color) => (
                         <button
                           key={color.id}
-                          onClick={() => setSelectedColor(color.id)}
+                          onClick={() => handleColorSelect(color.id)}
                           className={`relative flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all ${
                             selectedColor === color.id
                               ? 'border-emerald-500 scale-110 shadow-md'

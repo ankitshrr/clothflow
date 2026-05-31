@@ -138,6 +138,7 @@ export interface Database {
           product_id: string;
           image_url: string;
           alt_text: string | null;
+          color_id: string | null;
           display_order: number;
           is_primary: boolean;
           created_at: string;
@@ -147,6 +148,7 @@ export interface Database {
           product_id: string;
           image_url: string;
           alt_text?: string;
+          color_id?: string | null;
           display_order?: number;
           is_primary?: boolean;
           created_at?: string;
@@ -156,6 +158,7 @@ export interface Database {
           product_id?: string;
           image_url?: string;
           alt_text?: string;
+          color_id?: string | null;
           display_order?: number;
           is_primary?: boolean;
           created_at?: string;

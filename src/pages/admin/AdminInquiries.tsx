@@ -196,7 +196,7 @@ export default function AdminInquiries() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50">

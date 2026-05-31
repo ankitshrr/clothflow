@@ -90,6 +90,21 @@ export default function AdminOrders() {
     );
   }
 
+  const renderAddress = (address: any) => {
+    if (!address) return 'N/A';
+    if (typeof address === 'string') return address;
+    return (
+      <>
+        <span className="block font-medium text-gray-900">{address.firstName} {address.lastName}</span>
+        <span className="block">{address.address}</span>
+        <span className="block">{address.city}, {address.state} {address.postalCode}</span>
+        <span className="block">{address.country}</span>
+        {address.email && <span className="block mt-1 text-gray-500">{address.email}</span>}
+        {address.phone && <span className="block text-gray-500">{address.phone}</span>}
+      </>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -124,7 +139,7 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50">
@@ -148,7 +163,12 @@ export default function AdminOrders() {
                   </div>
                 </td>
                 <td className="hidden md:table-cell py-4 px-6 text-gray-600">{formatDate(order.created_at)}</td>
-                <td className="hidden sm:table-cell py-4 px-6 text-gray-600">{order.items?.length || 0} items</td>
+                <td className="hidden sm:table-cell py-4 px-6 text-gray-600">
+                  <div className="max-w-[200px] lg:max-w-[250px] truncate text-sm text-gray-900" title={order.items?.map(item => `${item.product_name} (x${item.quantity})`).join(', ')}>
+                    {order.items?.map(item => `${item.product_name} (x${item.quantity})`).join(', ') || 'No items'}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">{order.items?.length || 0} items</div>
+                </td>
                 <td className="hidden sm:table-cell py-4 px-6 font-medium text-gray-900">
                   {formatPrice(order.total)}
                 </td>
@@ -203,17 +223,24 @@ export default function AdminOrders() {
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Shipping Address</h3>
-                <p className="text-sm text-gray-600">
-                  {selectedOrder.shipping_address as any}
-                </p>
+                <div className="text-sm text-gray-600">
+                  {renderAddress(selectedOrder.shipping_address)}
+                </div>
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Billing Address</h3>
-                <p className="text-sm text-gray-600">
-                  {selectedOrder.billing_address as any}
-                </p>
+                <div className="text-sm text-gray-600">
+                  {renderAddress(selectedOrder.billing_address)}
+                </div>
               </div>
             </div>
+
+            {selectedOrder.notes && (
+              <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-lg text-sm">
+                <h3 className="font-semibold mb-1">Order Notes / Payment</h3>
+                <p>{selectedOrder.notes}</p>
+              </div>
+            )}
 
             <div>
               <h3 className="font-semibold text-gray-900 mb-2">Order Items</h3>
