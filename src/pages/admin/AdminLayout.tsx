@@ -37,7 +37,7 @@ export default function AdminLayout() {
       {/* Mobile Top Bar */}
       <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-20">
         <Link to="/" className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          MenStore
+          Reeback Fashion
         </Link>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -62,7 +62,7 @@ export default function AdminLayout() {
       )}>
         <div className="p-6 hidden md:block">
           <Link to="/" className="text-2xl font-bold text-gray-900 flex items-center gap-2 hover:text-gray-600 transition-colors">
-            MenStore
+            Reeback Fashion
           </Link>
           <p className="text-sm text-gray-600 mt-1">Admin Dashboard</p>
         </div>

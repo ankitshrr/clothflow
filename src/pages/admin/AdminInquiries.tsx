@@ -180,7 +180,7 @@ export default function AdminInquiries() {
               onClick={() => setStatusFilter(status)}
               className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
                 statusFilter === status
-                  ? 'bg-gray-900 text-white'
+                  ? 'bg-primary text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >

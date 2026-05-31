@@ -6,6 +6,7 @@ import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import { formatPrice, generateOrderNumber } from '../lib/utils';
+import { useAddresses } from '../hooks/useAddresses';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Loading from '../components/ui/Loading';
@@ -15,6 +16,7 @@ export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { addresses } = useAddresses();
 
 
   const [step, setStep] = useState(1);
@@ -186,7 +188,7 @@ export default function CheckoutPage() {
             <div className="flex items-center gap-2">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  step >= 1 ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-600'
+                  step >= 1 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
                 }`}
               >
                 {step > 1 ? <Check className="w-4 h-4" /> : '1'}
@@ -196,7 +198,7 @@ export default function CheckoutPage() {
             <div className="flex items-center gap-2">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  step >= 2 ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-600'
+                  step >= 2 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
                 }`}
               >
                 {step > 2 ? <Check className="w-4 h-4" /> : '2'}
@@ -206,7 +208,7 @@ export default function CheckoutPage() {
             <div className="flex items-center gap-2">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  step >= 3 ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-600'
+                  step >= 3 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
                 }`}
               >
                 3
@@ -221,6 +223,41 @@ export default function CheckoutPage() {
             {step === 1 && (
               <div className="bg-white rounded-lg shadow-sm p-8">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Shipping Information</h2>
+
+                {addresses.length > 0 && (
+                  <div className="mb-8">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">Saved Addresses</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {addresses.map((addr) => (
+                        <div
+                          key={addr.id}
+                          onClick={() => {
+                            setShippingInfo({
+                              ...shippingInfo,
+                              address: addr.address_line_1,
+                              city: addr.city,
+                              state: addr.state || '',
+                              postalCode: addr.postal_code || '',
+                              country: addr.country,
+                              phone: addr.phone || '',
+                            });
+                            showToast('Address applied', 'success');
+                          }}
+                          className="border rounded-lg p-4 cursor-pointer hover:border-primary transition-colors hover:bg-blue-50/30"
+                        >
+                          <div className="font-semibold text-gray-900 mb-1">{addr.title}</div>
+                          <div className="text-sm text-gray-600 truncate">
+                            {addr.address_line_1}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 border-t pt-4">
+                      <h3 className="text-sm font-semibold text-gray-700 mb-1">Or enter a new address:</h3>
+                    </div>
+                  </div>
+                )}
+
                 <form onSubmit={handleShippingSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-4">
                     <Input

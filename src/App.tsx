@@ -16,6 +16,7 @@ import {
   StoresPage,
   OrdersPage,
   AccountPage,
+  UpdatePasswordPage,
   WholesalePage,
   WholesaleProductDetailPage,
 } from './pages';
@@ -108,6 +109,7 @@ function AppContent() {
                       </ProtectedRoute>
                     }
                   />
+                  <Route path="update-password" element={<UpdatePasswordPage />} />
                   <Route
                     path="wishlist"
                     element={

@@ -1060,7 +1060,7 @@ export default function AdminProducts() {
                 {productType !== 'wholesale' && (
                   <div className="grid grid-cols-2 gap-4 border-t pt-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Base Price ($)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Base Price (Rs.)</label>
                       <input
                         type="number"
                         step="0.01"
@@ -1071,7 +1071,7 @@ export default function AdminProducts() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Sale Price ($) (Optional)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Sale Price (Rs.) (Optional)</label>
                       <input
                         type="number"
                         step="0.01"
@@ -1086,7 +1086,7 @@ export default function AdminProducts() {
                 )}
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Short Description</label>
+                  <label className="block text-sm font-medium text-gray-700">Short Description (Brief highlight)</label>
                   <input
                     type="text"
                     value={shortDescription}
@@ -1097,7 +1097,7 @@ export default function AdminProducts() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Description</label>
+                  <label className="block text-sm font-medium text-gray-700">Full Description</label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -1115,7 +1115,7 @@ export default function AdminProducts() {
                       onChange={(e) => setIsFeatured(e.target.checked)}
                       className="rounded text-gray-900 border-gray-300 focus:ring-gray-900 h-4 w-4"
                     />
-                    <span className="text-sm font-medium text-gray-700">Featured Product</span>
+                    <span className="text-sm font-medium text-gray-700">Show on Homepage (Featured)</span>
                   </label>
 
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -1125,7 +1125,7 @@ export default function AdminProducts() {
                       onChange={(e) => setIsActive(e.target.checked)}
                       className="rounded text-gray-900 border-gray-300 focus:ring-gray-900 h-4 w-4"
                     />
-                    <span className="text-sm font-medium text-gray-700">Active (Visible in catalog)</span>
+                    <span className="text-sm font-medium text-gray-700">Active (Visible to customers)</span>
                   </label>
                 </div>
               </div>

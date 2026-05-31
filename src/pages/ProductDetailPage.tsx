@@ -7,8 +7,10 @@ import { formatPrice, calculateDiscount } from '../lib/utils';
 import { useCart } from '../hooks/useCart';
 import Button from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
-
+import { useWishlist } from '../hooks/useWishlist';
 import Loading from '../components/ui/Loading';
+import { ProductDetailSkeleton } from '../components/ui/Skeleton';
+import { ReviewForm } from '../components/product';
 
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -23,8 +25,27 @@ export default function ProductDetailPage() {
   const [stock, setStock] = useState<number>(0);
   const [sizeError, setSizeError] = useState(false);
   const [colorError, setColorError] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  
   const { addToCart } = useCart();
   const { showToast } = useToast();
+  const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+
+  const isWishlisted = product ? isInWishlist(product.id) : false;
+
+  const handleWishlistClick = async () => {
+    if (!product) return;
+    
+    if (isWishlisted) {
+      const { error } = await removeFromWishlist(product.id);
+      if (error) showToast('Failed to remove from wishlist', 'error');
+      else showToast('Removed from wishlist', 'success');
+    } else {
+      const { error } = await addToWishlist(product.id);
+      if (error) showToast(error.message || 'Failed to add to wishlist', 'error');
+      else showToast('Added to wishlist', 'success');
+    }
+  };
 
   useEffect(() => {
     if (slug) {
@@ -144,11 +165,7 @@ export default function ProductDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loading size="lg" />
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (!product) {
@@ -339,7 +356,7 @@ export default function ProductDetailPage() {
                         onClick={() => handleSizeSelect(size.id)}
                         className={`px-4 py-2 border-2 rounded-lg transition-all ${
                           selectedSize === size.id
-                            ? 'border-gray-900 bg-gray-900 text-white'
+                            ? 'border-primary bg-primary text-white'
                             : 'border-gray-300 hover:border-gray-900'
                         }`}
                       >
@@ -391,17 +408,37 @@ export default function ProductDetailPage() {
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Add to Cart
                 </Button>
-                <Button variant="outline" size="lg">
-                  <Heart className="w-5 h-5" />
+                <Button variant="outline" size="lg" onClick={handleWishlistClick} className={isWishlisted ? "text-red-500 border-red-500 hover:bg-red-50" : ""}>
+                  <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
                 </Button>
               </div>
             </div>
           </div>
         </div>
 
-        {reviews.length > 0 && (
-          <div className="mt-12 bg-white rounded-lg shadow-sm p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
+        <div className="mt-12 bg-white rounded-lg shadow-sm p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Customer Reviews</h2>
+            {!showReviewForm && (
+              <Button onClick={() => setShowReviewForm(true)}>Write a Review</Button>
+            )}
+          </div>
+
+          {showReviewForm && product && (
+            <div className="mb-8">
+              <ReviewForm 
+                productId={product.id}
+                onCancel={() => setShowReviewForm(false)}
+                onReviewSubmitted={() => {
+                  setShowReviewForm(false);
+                  // Refetch product data to get new review
+                  fetchProduct(product.slug);
+                }}
+              />
+            </div>
+          )}
+
+          {reviews.length > 0 ? (
             <div className="space-y-6">
               {reviews.map((review) => (
                 <div key={review.id} className="border-b pb-6">
@@ -431,8 +468,12 @@ export default function ProductDetailPage() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            !showReviewForm && (
+              <p className="text-gray-500">No reviews yet. Be the first to review this product!</p>
+            )
+          )}
+        </div>
 
         {stores.length > 0 && (
           <div className="mt-12 bg-white rounded-lg shadow-sm p-8">

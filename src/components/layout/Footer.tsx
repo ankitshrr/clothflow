@@ -3,11 +3,11 @@ import { MapPin, Mail, Phone } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 dark:bg-black text-white mt-auto">
+    <footer className="bg-dark text-white mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-2xl font-bold mb-4">MenStore</h3>
+            <h3 className="text-2xl font-bold mb-4">Reeback Fashion</h3>
             <p className="text-gray-400 text-sm leading-relaxed">
               Premium men's fashion in Nepal. Quality clothing for the modern man.
             </p>
@@ -96,10 +96,10 @@ export default function Footer() {
               <li className="flex items-center gap-2">
                 <Mail className="w-5 h-5 flex-shrink-0" />
                 <a
-                  href="mailto:pepsicola@menstore.com.np"
+                  href="mailto:contact@reebackfashion.com.np"
                   className="text-gray-400 hover:text-white transition-colors text-sm"
                 >
-                  pepsicola@menstore.com.np
+                  contact@reebackfashion.com.np
                 </a>
               </li>
               <li className="flex items-center gap-2">
@@ -117,7 +117,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-400 text-sm">
-            &copy; {new Date().getFullYear()} MenStore Nepal. All rights reserved.
+            &copy; {new Date().getFullYear()} Reeback Fashion Nepal. All rights reserved.
           </p>
         </div>
       </div>

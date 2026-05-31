@@ -5,6 +5,19 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { formatPrice, formatDate } from '../../lib/utils';
 import Loading from '../../components/ui/Loading';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+
+interface SalesData {
+  date: string;
+  sales: number;
+}
 
 
 interface DashboardStats {
@@ -12,6 +25,8 @@ interface DashboardStats {
   totalOrders: number;
   totalCustomers: number;
   totalRevenue: number;
+  todaysSales: number;
+  monthlyRevenue: number;
   pendingOrders: number;
   lowStockProducts: number;
   totalInquiries: number;
@@ -44,6 +59,8 @@ export default function AdminDashboard() {
     totalOrders: 0,
     totalCustomers: 0,
     totalRevenue: 0,
+    todaysSales: 0,
+    monthlyRevenue: 0,
     pendingOrders: 0,
     lowStockProducts: 0,
     totalInquiries: 0,
@@ -51,6 +68,7 @@ export default function AdminDashboard() {
   });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [recentInquiries, setRecentInquiries] = useState<RecentInquiry[]>([]);
+  const [salesData, setSalesData] = useState<SalesData[]>([]);
   const [loading, setLoading] = useState(true);
   const { profile } = useAuth();
 
@@ -61,23 +79,71 @@ export default function AdminDashboard() {
   const fetchDashboardData = async () => {
     setLoading(true);
 
-    const [productsRes, ordersRes, profilesRes, inventoryRes, inquiriesRes] = await Promise.all([
+    const [productsRes, ordersRes, pendingOrdersRes, profilesRes, inventoryRes, inquiriesRes] = await Promise.all([
       supabase.from('products').select('id', { count: 'exact' }).eq('is_active', true),
-      supabase.from('orders').select('id, total, status'),
+      supabase.from('orders').select('id, total, status, created_at'),
+      supabase.from('orders').select('id', { count: 'exact' }).eq('status', 'pending'),
       supabase.from('profiles').select('id', { count: 'exact' }),
       supabase.from('inventory').select('quantity'),
       supabase.from('inquiries').select('id, status, inquiry_type'),
     ]);
 
-    const totalRevenue =
-      ordersRes.data?.reduce((sum: number, order: any) => {
-        if (order.status === 'delivered' || order.status === 'shipped') {
-          return sum + (order.total || 0);
-        }
-        return sum;
-      }, 0) || 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    const pendingOrders = ordersRes.data?.filter((o: any) => o.status === 'pending').length || 0;
+    const last7Days = Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      d.setHours(0, 0, 0, 0);
+      return d;
+    });
+
+    const chartDataMap = new Map();
+    last7Days.forEach(d => {
+      chartDataMap.set(d.getTime(), {
+        date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        sales: 0
+      });
+    });
+
+    let totalRevenue = 0;
+    let todaysSales = 0;
+    let monthlyRevenue = 0;
+
+    ordersRes.data?.forEach((order: any) => {
+      const orderDate = new Date(order.created_at);
+      const isToday = orderDate >= today;
+      const isThisMonth = orderDate >= firstDayOfMonth;
+      
+      // Calculate total revenue (only delivered or shipped)
+      if (order.status === 'delivered' || order.status === 'shipped') {
+        totalRevenue += order.total || 0;
+        if (isThisMonth) {
+          monthlyRevenue += order.total || 0;
+        }
+      }
+
+      // Calculate today's sales (all non-cancelled orders)
+      if (order.status !== 'cancelled' && isToday) {
+        todaysSales += order.total || 0;
+      }
+
+      // Calculate chart data
+      const chartOrderDate = new Date(order.created_at);
+      chartOrderDate.setHours(0, 0, 0, 0);
+      const orderTime = chartOrderDate.getTime();
+      
+      if (chartDataMap.has(orderTime) && order.status !== 'cancelled') {
+        const existing = chartDataMap.get(orderTime);
+        existing.sales += (order.total || 0);
+      }
+    });
+
+    const chartData = Array.from(chartDataMap.values());
+    setSalesData(chartData);
+
+    const pendingOrders = pendingOrdersRes.count || 0;
     const totalInquiries = inquiriesRes.data?.length || 0;
     const newInquiries = inquiriesRes.data?.filter((i: any) => i.status === 'new').length || 0;
 
@@ -86,6 +152,8 @@ export default function AdminDashboard() {
       totalOrders: ordersRes.data?.length || 0,
       totalCustomers: profilesRes.count || 0,
       totalRevenue,
+      todaysSales,
+      monthlyRevenue,
       pendingOrders,
       lowStockProducts: inventoryRes.data?.filter((i: any) => i.quantity < 10).length || 0,
       totalInquiries,
@@ -139,10 +207,17 @@ export default function AdminDashboard() {
       color: 'bg-green-50 text-green-600 dark:bg-green-950/20 dark:text-green-400',
     },
     {
-      title: 'Wholesale Inquiries',
-      value: stats.totalInquiries,
-      icon: HelpCircle,
-      href: '/admin/inquiries',
+      title: 'Today\'s Sales',
+      value: formatPrice(stats.todaysSales),
+      icon: Wallet,
+      href: '/admin/orders',
+      color: 'bg-purple-50 text-purple-600 dark:bg-purple-950/20 dark:text-purple-400',
+    },
+    {
+      title: 'Monthly Revenue',
+      value: formatPrice(stats.monthlyRevenue),
+      icon: Wallet,
+      href: '/admin/orders',
       color: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/20 dark:text-indigo-400',
     },
     {
@@ -182,7 +257,7 @@ export default function AdminDashboard() {
         <p className="text-gray-600 mt-1">Welcome back, {profile?.full_name}</p>
       </div>
 
-      <div className="grid md:grid-cols-4 gap-6">
+      <div className="grid md:grid-cols-5 gap-6">
         {statCards.map((stat) => (
           <Link
             key={stat.title}
@@ -216,6 +291,30 @@ export default function AdminDashboard() {
             </div>
           </Link>
         ))}
+      </div>
+
+      {/* Sales Chart */}
+      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+        <h2 className="text-xl font-bold text-gray-900 mb-6">Revenue (Last 7 Days)</h2>
+        <div className="h-72 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={salesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#000000" stopOpacity={0.1}/>
+                  <stop offset="95%" stopColor="#000000" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dy={10} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} tickFormatter={(value) => `Rs. ${value}`} />
+              <Tooltip 
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                formatter={(value: number) => [formatPrice(value), 'Revenue']}
+              />
+              <Area type="monotone" dataKey="sales" stroke="#000000" strokeWidth={2} fillOpacity={1} fill="url(#colorSales)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">

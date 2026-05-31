@@ -7,5 +7,6 @@ export { default as CheckoutPage } from './CheckoutPage';
 export { default as StoresPage } from './StoresPage';
 export { default as OrdersPage } from './OrdersPage';
 export { default as AccountPage } from './AccountPage';
+export { default as UpdatePasswordPage } from './UpdatePasswordPage';
 export { default as WholesalePage } from './WholesalePage';
 export { default as WholesaleProductDetailPage } from './WholesaleProductDetailPage';

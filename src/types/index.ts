@@ -54,3 +54,23 @@ export interface User {
   role: 'customer' | 'admin';
   avatar_url: string;
 }
+
+export interface UserAddress {
+  id: string;
+  user_id: string;
+  title: string;
+  address_line_1: string;
+  address_line_2: string | null;
+  city: string;
+  state: string | null;
+  postal_code: string | null;
+  country: string;
+  phone: string | null;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WishlistItemWithProduct extends Wishlist {
+  product: ProductWithDetails;
+}

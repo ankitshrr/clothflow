@@ -50,12 +50,12 @@ export default function Header({ onAuthClick }: HeaderProps) {
   ];
 
   return (
-    <header className="bg-black/95 backdrop-blur-md text-gray-100 shadow-sm sticky top-0 z-40 transition-all border-b border-gray-800">
+    <header className="bg-dark/95 backdrop-blur-md text-gray-100 shadow-sm sticky top-0 z-40 transition-all border-b border-gray-800">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link to="/" className="text-2xl font-bold tracking-tight text-white hover:text-gray-300 transition-colors">
-              MenStore
+              Reeback Fashion
             </Link>
           </div>
 
@@ -75,7 +75,7 @@ export default function Header({ onAuthClick }: HeaderProps) {
                 <ChevronDown className="w-4 h-4 ml-1 opacity-70" />
               </button>
               
-              <div className={`absolute top-full left-0 w-56 bg-gray-900 border border-gray-800 rounded-lg shadow-xl py-2 transition-all duration-200 ${isCategoryOpen ? 'opacity-100 translate-y-0 visible' : 'opacity-0 translate-y-2 invisible'}`}>
+              <div className={`absolute top-full left-0 w-56 bg-dark border border-gray-800 rounded-lg shadow-xl py-2 transition-all duration-200 ${isCategoryOpen ? 'opacity-100 translate-y-0 visible' : 'opacity-0 translate-y-2 invisible'}`}>
                 {categories.map((category) => (
                   <Link
                     key={category.name}
@@ -165,8 +165,8 @@ export default function Header({ onAuthClick }: HeaderProps) {
                 <div className="absolute right-0 top-full pt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                   <div className="bg-gray-900 border border-gray-800 rounded-lg shadow-xl py-2">
                     <div className="px-4 py-2 border-b border-gray-800 mb-2">
-                    <span className="block text-xs text-gray-500">Signed in as</span>
-                    <span className="block text-sm text-white font-medium truncate">{getFirstName()}</span>
+                    <span className="block text-sm text-white font-medium truncate">{profile?.full_name || user?.user_metadata?.full_name || getFirstName()}</span>
+                    <span className="block text-xs text-gray-400 truncate">{user?.email}</span>
                   </div>
                   <Link
                     to="/account"

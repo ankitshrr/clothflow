@@ -67,6 +67,22 @@ export default function AdminOrders() {
 
   };
 
+  const handleUpdatePaymentStatus = async (orderId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from('orders')
+      .update({ payment_status: newStatus })
+      .eq('id', orderId);
+
+    if (!error) {
+      setOrders(
+        orders.map((order) =>
+          order.id === orderId ? { ...order, payment_status: newStatus as any } : order
+        )
+      );
+      showToast('Payment status updated', 'success');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'delivered':
@@ -186,15 +202,22 @@ export default function AdminOrders() {
                   </select>
                 </td>
                 <td className="hidden lg:table-cell py-4 px-6">
-                  <span
-                    className={`px-2 py-1 text-xs font-medium rounded-full ${
+                  <select
+                    value={order.payment_status}
+                    onChange={(e) => handleUpdatePaymentStatus(order.id, e.target.value)}
+                    className={`text-xs font-medium rounded-full px-2 sm:px-3 py-1 border-0 ${
                       order.payment_status === 'paid'
                         ? 'bg-green-100 text-green-700'
+                        : order.payment_status === 'refunded' || order.payment_status === 'failed'
+                        ? 'bg-red-100 text-red-700'
                         : 'bg-yellow-100 text-yellow-700'
                     }`}
                   >
-                    {order.payment_status}
-                  </span>
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="failed">Failed</option>
+                    <option value="refunded">Refunded</option>
+                  </select>
                 </td>
                 <td className="py-4 px-4 sm:px-6">
                   <div className="flex items-center justify-end gap-2">
