@@ -185,6 +185,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updatePassword = async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password });
+    
+    if (!error) {
+      // Trigger security alert email silently
+      supabase.functions.invoke('security-alerts', {
+        body: { type: 'password_change' }
+      }).catch(console.error);
+    }
+    
     return { error };
   };
 

@@ -29,7 +29,9 @@ import {
   AdminInquiries,
   AdminLayout,
 } from './pages/admin';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from './lib/supabase';
+import { useToast } from './components/ui/Toast';
 
 function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) {
   const { user, profile, loading } = useAuth();
@@ -51,6 +53,31 @@ function ProtectedRoute({ children, adminOnly = false }: { children: React.React
 
 function AppContent() {
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        showToast('Successfully logged in!', 'success');
+        
+        // Check if this is a brand new account (created within the last 30 seconds)
+        const isNewUser = Date.now() - new Date(session.user.created_at).getTime() < 30000;
+        
+        // Trigger security alert email silently
+        try {
+          await supabase.functions.invoke('security-alerts', {
+            body: { type: isNewUser ? 'signup' : 'login' }
+          });
+        } catch (error) {
+          console.error('Failed to send email alert:', error);
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [showToast]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors">

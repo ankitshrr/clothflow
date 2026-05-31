@@ -45,7 +45,7 @@ export default function SignupForm({ onSuccess, onLoginClick }: SignupFormProps)
       setError(error.message);
       setLoading(false);
     } else {
-      showToast('Account created successfully!', 'success');
+      showToast('Account created! Please check your email to verify.', 'success');
       onSuccess?.();
     }
   };
