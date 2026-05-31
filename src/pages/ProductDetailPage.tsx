@@ -10,7 +10,8 @@ import { useToast } from '../components/ui/Toast';
 import { useWishlist } from '../hooks/useWishlist';
 import Loading from '../components/ui/Loading';
 import { ProductDetailSkeleton } from '../components/ui/Skeleton';
-import { ReviewForm } from '../components/product';
+import { ProductReviews } from '../components/products/ProductReviews';
+import { RelatedProducts } from '../components/products/RelatedProducts';
 
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -25,7 +26,6 @@ export default function ProductDetailPage() {
   const [stock, setStock] = useState<number>(0);
   const [sizeError, setSizeError] = useState(false);
   const [colorError, setColorError] = useState(false);
-  const [showReviewForm, setShowReviewForm] = useState(false);
   
   const { addToCart } = useCart();
   const { showToast } = useToast();
@@ -416,64 +416,19 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        <div className="mt-12 bg-white rounded-lg shadow-sm p-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Customer Reviews</h2>
-            {!showReviewForm && (
-              <Button onClick={() => setShowReviewForm(true)}>Write a Review</Button>
-            )}
-          </div>
+        <ProductReviews 
+          productId={product.id} 
+          onReviewChanged={() => {
+             if (slug) fetchProduct();
+          }} 
+        />
 
-          {showReviewForm && product && (
-            <div className="mb-8">
-              <ReviewForm 
-                productId={product.id}
-                onCancel={() => setShowReviewForm(false)}
-                onReviewSubmitted={() => {
-                  setShowReviewForm(false);
-                  // Refetch product data to get new review
-                  fetchProduct(product.slug);
-                }}
-              />
-            </div>
-          )}
-
-          {reviews.length > 0 ? (
-            <div className="space-y-6">
-              {reviews.map((review) => (
-                <div key={review.id} className="border-b pb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-4 h-4 ${
-                              i < review.rating
-                                ? 'text-yellow-400 fill-current'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <span className="text-sm text-gray-600">
-                      {new Date(review.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  {review.title && (
-                    <h4 className="font-semibold text-gray-900 mb-1">{review.title}</h4>
-                  )}
-                  <p className="text-gray-700">{review.comment}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            !showReviewForm && (
-              <p className="text-gray-500">No reviews yet. Be the first to review this product!</p>
-            )
-          )}
-        </div>
+        {product.category_id && (
+          <RelatedProducts 
+            categoryId={product.category_id} 
+            currentProductId={product.id} 
+          />
+        )}
 
         {stores.length > 0 && (
           <div className="mt-12 bg-white rounded-lg shadow-sm p-8">

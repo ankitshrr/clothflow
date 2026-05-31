@@ -141,10 +141,13 @@ export default function OrdersPage() {
                   </div>
                 </div>
 
-                <div className="px-6 py-4 bg-gray-50">
+                <div className="px-6 py-4 bg-gray-50 flex justify-between items-center">
                   <p className="text-sm text-gray-600">
                     {order.items?.length || 0} item(s)
                   </p>
+                  <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
+                    View Details
+                  </Button>
                 </div>
               </div>
             ))}

@@ -155,24 +155,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    // 1. Immediately update UI state for instant feedback
+    setUser(null);
+    setProfile(null);
+    
+    // 2. Forcefully clear local storage instantly
+    localStorage.removeItem('user_profile');
+    
+    // We must loop backwards when removing items by index
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+        localStorage.removeItem(key);
+      }
+    }
+
+    // 3. Do the network call in the background without blocking the user
     try {
-      await Promise.race([
-        supabase.auth.signOut(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Sign out timed out')), 5000))
-      ]);
+      await supabase.auth.signOut();
     } catch (error) {
       console.error('Sign out error:', error);
-    } finally {
-      // Forcefully clear Supabase auth tokens from localStorage just in case
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
-          localStorage.removeItem(key);
-        }
-      }
-      setUser(null);
-      setProfile(null);
-      localStorage.removeItem('user_profile');
     }
   };
 
