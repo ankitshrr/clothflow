@@ -91,12 +91,16 @@ export default function OrdersPage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">My Orders</h1>
 
         {orders.length === 0 ? (
-          <div className="text-center py-12">
-            <Package className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">No orders yet</h2>
-            <p className="text-gray-600 mb-6">Start shopping to see your orders here</p>
+          <div className="text-center max-w-md mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100 mt-12">
+            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-500">
+              <Package className="w-8 h-8" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">No Orders Yet</h2>
+            <p className="text-gray-600 mb-8">You haven't placed any orders yet. Start shopping to find your next favorite outfit!</p>
             <Link to="/products">
-              <Button>Continue Shopping</Button>
+              <Button size="lg" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
+                Start Shopping
+              </Button>
             </Link>
           </div>
         ) : (

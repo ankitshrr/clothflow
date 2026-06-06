@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { ShoppingCart, Heart, ChevronRight, Minus, Plus, Star, MapPin } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { ShoppingCart, Heart, ChevronRight, Minus, Plus, Star, MapPin, Package, ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { ProductWithDetails, Review, StoreLocation } from '../types';
 import { formatPrice, calculateDiscount } from '../lib/utils';
@@ -240,9 +240,11 @@ export default function ProductDetailPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-gray-400">No image</span>
-                  </div>
+                  <img
+                    src={`https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80&auto=format&fit=crop`}
+                    alt="Placeholder fashion model"
+                    className="w-full h-full object-cover opacity-90"
+                  />
                 )}
               </div>
 
@@ -398,7 +400,7 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex gap-4 mb-8">
                 <Button
                   onClick={handleAddToCart}
                   size="lg"
@@ -411,6 +413,22 @@ export default function ProductDetailPage() {
                 <Button variant="outline" size="lg" onClick={handleWishlistClick} className={isWishlisted ? "text-red-500 border-red-500 hover:bg-red-50" : ""}>
                   <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
                 </Button>
+              </div>
+
+              {/* Wholesale Callout */}
+              <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-5 flex items-start gap-4 shadow-sm">
+                <div className="p-2.5 bg-emerald-100 rounded-lg text-emerald-600 flex-shrink-0">
+                  <Package className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-emerald-900 mb-1">Buying for a business?</h4>
+                  <p className="text-sm text-emerald-700 mb-2 leading-relaxed">
+                    Get special bulk pricing on wholesale orders for your store.
+                  </p>
+                  <Link to="/wholesale" className="inline-flex items-center text-sm font-semibold text-emerald-600 hover:text-emerald-800 transition-colors">
+                    View Wholesale Catalog <ArrowRight className="w-4 h-4 ml-1" />
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

@@ -181,9 +181,11 @@ export default function WholesaleProductDetailPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    No image available
-                  </div>
+                  <img
+                    src={`https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80&auto=format&fit=crop`}
+                    alt="Placeholder fashion model"
+                    className="w-full h-full object-cover opacity-90"
+                  />
                 )}
                 {/* Float MOQ tag */}
                 <div className="absolute bottom-4 left-4 bg-gray-900/90 backdrop-blur-md text-white text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-sm">

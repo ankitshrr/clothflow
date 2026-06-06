@@ -29,6 +29,7 @@ import {
   AdminInquiries,
   AdminLayout,
 } from './pages/admin';
+import ScrollToTop from './components/ui/ScrollToTop';
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { useToast } from './components/ui/Toast';
@@ -56,10 +57,14 @@ function AppContent() {
   const { showToast } = useToast();
 
   useEffect(() => {
+    const handleOpenAuth = () => setShowAuthModal(true);
+    window.addEventListener('open-auth-modal', handleOpenAuth);
+    return () => window.removeEventListener('open-auth-modal', handleOpenAuth);
+  }, []);
+
+  useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
-        showToast('Successfully logged in!', 'success');
-        
         // Check if this is a brand new account (created within the last 30 seconds)
         const isNewUser = Date.now() - new Date(session.user.created_at).getTime() < 30000;
         
@@ -81,6 +86,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors">
+      <ScrollToTop />
       <Routes>
         <Route
           path="/admin"

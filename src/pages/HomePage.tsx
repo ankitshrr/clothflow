@@ -99,18 +99,24 @@ export default function HomePage() {
             <p className="text-gray-600 dark:text-gray-300">Explore our fashion categories</p>
           </AnimateOnScroll>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {categories.map((category, index) => (
               <AnimateOnScroll key={category.id} delay={index * 100}>
                 <Link
                   to={`/category/${category.slug}`}
                   className="group relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700 block"
                 >
-                  {category.image_url && (
+                  {category.image_url ? (
                     <img
                       src={category.image_url}
                       alt={category.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  ) : (
+                    <img
+                      src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=500&q=80&auto=format&fit=crop"
+                      alt={category.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300 opacity-90"
                     />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
@@ -141,12 +147,37 @@ export default function HomePage() {
             </Link>
           </AnimateOnScroll>
 
-          <AnimateOnScroll delay={200}>
-            <ProductGrid
-              products={featuredProducts}
-              loading={loading}
-              onAddToCart={handleAddToCart}
-            />
+          <ProductGrid
+            products={featuredProducts}
+            loading={loading}
+            onAddToCart={handleAddToCart}
+          />
+        </div>
+      </section>
+
+      {/* Wholesale Banner Section */}
+      <section className="py-20 bg-emerald-900 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <img 
+            src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=1600&q=80" 
+            alt="Wholesale background" 
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          <AnimateOnScroll animation="fade-up">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+              Looking to Buy in Bulk?
+            </h2>
+            <p className="text-emerald-100 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
+              Get special wholesale pricing for your business. Partner with Reeback Fashion to stock your store with premium quality clothing.
+            </p>
+            <Link to="/wholesale">
+              <Button size="lg" className="bg-white text-emerald-900 hover:bg-gray-100 border-transparent shadow-xl">
+                Explore Wholesale Catalog
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
           </AnimateOnScroll>
         </div>
       </section>

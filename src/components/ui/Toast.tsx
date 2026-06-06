@@ -41,9 +41,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 }
 
 function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
+  const [isExiting, setIsExiting] = useState(false);
+
   useEffect(() => {
-    const timer = setTimeout(onClose, 4000);
-    return () => clearTimeout(timer);
+    const exitTimer = setTimeout(() => {
+      setIsExiting(true);
+    }, 3700);
+    
+    const closeTimer = setTimeout(onClose, 4000);
+    
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(closeTimer);
+    };
   }, [onClose]);
 
   const icons = {
@@ -61,13 +71,14 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
   return (
     <div
       className={cn(
-        'flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg animate-slide-in',
+        'flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg transition-all duration-300',
+        isExiting ? 'opacity-0 translate-x-8' : 'animate-slide-in',
         backgrounds[toast.type]
       )}
     >
       {icons[toast.type]}
       <p className="text-sm font-medium text-gray-800">{toast.message}</p>
-      <button onClick={onClose} className="ml-auto text-gray-400 hover:text-gray-600">
+      <button onClick={() => setIsExiting(true)} className="ml-auto text-gray-400 hover:text-gray-600 focus:outline-none">
         <X className="w-4 h-4" />
       </button>
     </div>

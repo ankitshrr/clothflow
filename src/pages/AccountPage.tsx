@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { User, Mail, Phone, Lock, Heart, MapPin } from 'lucide-react';
+import { User, Mail, Phone, Lock, Heart, MapPin, ArrowLeft } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { WishlistTab, AddressesTab, AvatarUpload } from '../components/account';
 import Button from '../components/ui/Button';
@@ -107,87 +108,85 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50 py-12">
+    <div className="min-h-screen bg-transparent py-8 md:py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Account Settings</h1>
-          <p className="text-gray-500 mt-2">Manage your account details and security preferences.</p>
+          <Link to="/" className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-black mb-6 uppercase tracking-widest transition-colors">
+            <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={1.5} />
+            Back to Store
+          </Link>
+          <h1 className="text-4xl font-black text-black tracking-tight uppercase">My Account</h1>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-12">
           {/* Sidebar */}
           <div className="w-full md:w-64 shrink-0">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6 flex items-center gap-4">
+            <div className="mb-8 flex items-center gap-4">
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Avatar" className="w-12 h-12 rounded-full object-cover shadow-sm border border-gray-200" />
+                <img src={profile.avatar_url} alt="Avatar" className="w-16 h-16 rounded-full object-cover" />
               ) : (
-                <div className="w-12 h-12 bg-gradient-to-br from-gray-800 to-black text-white rounded-full flex items-center justify-center text-xl font-bold shadow-inner">
+                <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-black">
                   {getInitials()}
                 </div>
               )}
               <div className="overflow-hidden">
-                <p className="font-semibold text-gray-900 truncate">{formData.full_name || 'My Profile'}</p>
-                <p className="text-xs text-gray-500 truncate">{formData.email}</p>
+                <p className="font-bold text-black truncate text-lg uppercase">{formData.full_name || 'My Profile'}</p>
+                <p className="text-sm text-gray-500 truncate">{formData.email}</p>
               </div>
             </div>
 
-            <nav className="space-y-1">
+            <nav className="space-y-2 border-l border-gray-200 pl-4">
               <button
                 onClick={() => setActiveTab('profile')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                className={`w-full flex items-center gap-3 py-2 transition-all duration-200 uppercase tracking-widest text-sm font-bold ${
                   activeTab === 'profile'
-                    ? 'bg-black text-white shadow-md'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'text-black'
+                    : 'text-gray-400 hover:text-black'
                 }`}
               >
-                <User className="w-5 h-5" />
-                <span className="font-medium">Profile Information</span>
+                Profile Info
               </button>
               <button
                 onClick={() => setActiveTab('security')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                className={`w-full flex items-center gap-3 py-2 transition-all duration-200 uppercase tracking-widest text-sm font-bold ${
                   activeTab === 'security'
-                    ? 'bg-black text-white shadow-md'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'text-black'
+                    : 'text-gray-400 hover:text-black'
                 }`}
               >
-                <Lock className="w-5 h-5" />
-                <span className="font-medium">Security & Password</span>
+                Security
               </button>
               <button
                 onClick={() => setActiveTab('wishlist')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                className={`w-full flex items-center gap-3 py-2 transition-all duration-200 uppercase tracking-widest text-sm font-bold ${
                   activeTab === 'wishlist'
-                    ? 'bg-dark text-white shadow-md'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-dark'
+                    ? 'text-black'
+                    : 'text-gray-400 hover:text-black'
                 }`}
               >
-                <Heart className="w-5 h-5" />
-                <span className="font-medium">My Wishlist</span>
+                Wishlist
               </button>
               <button
                 onClick={() => setActiveTab('addresses')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                className={`w-full flex items-center gap-3 py-2 transition-all duration-200 uppercase tracking-widest text-sm font-bold ${
                   activeTab === 'addresses'
-                    ? 'bg-dark text-white shadow-md'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-dark'
+                    ? 'text-black'
+                    : 'text-gray-400 hover:text-black'
                 }`}
               >
-                <MapPin className="w-5 h-5" />
-                <span className="font-medium">Saved Addresses</span>
+                Addresses
               </button>
             </nav>
           </div>
 
           {/* Main Content Area */}
           <div className="flex-1">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-transparent">
               {/* Profile Tab */}
               {activeTab === 'profile' && (
-                <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">Personal Details</h2>
-                    <p className="text-sm text-gray-500 mt-1">Update your personal information and contact details.</p>
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-black text-black uppercase">Personal Details</h2>
                   </div>
 
                   <div className="mb-8 border-b border-gray-100 pb-8">
@@ -197,55 +196,45 @@ export default function AccountPage() {
 
                   <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
                         Full Name
                       </label>
-                      <div className="relative group">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-black transition-colors" />
-                        <input
-                          type="text"
-                          value={formData.full_name}
-                          onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all bg-gray-50 focus:bg-white"
-                          placeholder="John Doe"
-                        />
-                      </div>
+                      <input
+                        type="text"
+                        value={formData.full_name}
+                        onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                        className="w-full px-4 py-3 border-b-2 border-gray-200 focus:border-black focus:outline-none transition-colors bg-transparent font-bold text-black"
+                        placeholder="John Doe"
+                      />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
                         Email Address
                       </label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input
-                          type="email"
-                          value={formData.email}
-                          disabled
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed"
-                        />
-                      </div>
-                      <p className="text-xs text-gray-400 mt-1.5">Email addresses cannot be changed directly.</p>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        disabled
+                        className="w-full px-4 py-3 border-b-2 border-gray-200 bg-transparent text-gray-400 font-bold cursor-not-allowed"
+                      />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
                         Phone Number
                       </label>
-                      <div className="relative group">
-                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-black transition-colors" />
-                        <input
-                          type="tel"
-                          value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all bg-gray-50 focus:bg-white"
-                          placeholder="+1 (555) 123-4567"
-                        />
-                      </div>
+                      <input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full px-4 py-3 border-b-2 border-gray-200 focus:border-black focus:outline-none transition-colors bg-transparent font-bold text-black"
+                        placeholder="+977 ..."
+                      />
                     </div>
 
-                    <div className="pt-4">
-                      <Button type="submit" loading={loading} className="px-8 rounded-xl shadow-md hover:shadow-lg transition-all">
+                    <div className="pt-6">
+                      <Button type="submit" loading={loading} className="px-8 rounded-none border border-black bg-black text-white hover:bg-white hover:text-black transition-colors font-bold uppercase tracking-widest text-xs py-3">
                         Save Changes
                       </Button>
                     </div>
@@ -255,66 +244,56 @@ export default function AccountPage() {
 
               {/* Security Tab */}
               {activeTab === 'security' && (
-                <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">Change Password</h2>
-                    <p className="text-sm text-gray-500 mt-1">Ensure your account is using a long, random password to stay secure.</p>
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-black text-black uppercase">Change Password</h2>
                   </div>
 
                   <form onSubmit={handlePasswordSubmit} className="space-y-6 max-w-lg">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
                         Current Password
                       </label>
-                      <div className="relative group">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-black transition-colors" />
-                        <input
-                          type="password"
-                          value={passwordData.oldPassword}
-                          onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all bg-gray-50 focus:bg-white"
-                          placeholder="••••••••"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="border-t border-gray-100 pt-6">
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        New Password
-                      </label>
-                      <div className="relative group">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-black transition-colors" />
-                        <input
-                          type="password"
-                          value={passwordData.newPassword}
-                          onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all bg-gray-50 focus:bg-white"
-                          placeholder="••••••••"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Confirm New Password
-                      </label>
-                      <div className="relative group">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-black transition-colors" />
-                        <input
-                          type="password"
-                          value={passwordData.confirmPassword}
-                          onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all bg-gray-50 focus:bg-white"
-                          placeholder="••••••••"
-                          required
-                        />
-                      </div>
+                      <input
+                        type="password"
+                        value={passwordData.oldPassword}
+                        onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                        className="w-full px-4 py-3 border-b-2 border-gray-200 focus:border-black focus:outline-none transition-colors bg-transparent font-bold text-black"
+                        placeholder="••••••••"
+                        required
+                      />
                     </div>
 
                     <div className="pt-4">
-                      <Button type="submit" loading={passwordLoading} className="px-8 rounded-xl shadow-md hover:shadow-lg transition-all">
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                        New Password
+                      </label>
+                      <input
+                        type="password"
+                        value={passwordData.newPassword}
+                        onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                        className="w-full px-4 py-3 border-b-2 border-gray-200 focus:border-black focus:outline-none transition-colors bg-transparent font-bold text-black"
+                        placeholder="••••••••"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                        Confirm New Password
+                      </label>
+                      <input
+                        type="password"
+                        value={passwordData.confirmPassword}
+                        onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                        className="w-full px-4 py-3 border-b-2 border-gray-200 focus:border-black focus:outline-none transition-colors bg-transparent font-bold text-black"
+                        placeholder="••••••••"
+                        required
+                      />
+                    </div>
+
+                    <div className="pt-6">
+                      <Button type="submit" loading={passwordLoading} className="px-8 rounded-none border border-black bg-black text-white hover:bg-white hover:text-black transition-colors font-bold uppercase tracking-widest text-xs py-3">
                         Update Password
                       </Button>
                     </div>

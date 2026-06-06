@@ -1,6 +1,7 @@
 import type { ProductWithDetails } from '../../types';
 import ProductCard from './ProductCard';
 import { ProductGridSkeleton } from '../ui/Skeleton';
+import AnimateOnScroll from '../ui/AnimateOnScroll';
 
 interface ProductGridProps {
   products: ProductWithDetails[];
@@ -31,14 +32,15 @@ export default function ProductGrid({
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
-      {products.map((product) => (
-        <ProductCard
-          key={product.id}
-          product={product}
-          onAddToCart={() => onAddToCart?.(product)}
-          onToggleWishlist={() => onToggleWishlist?.(product.id)}
-          isWishlisted={wishlistedProducts.includes(product.id)}
-        />
+      {products.map((product, index) => (
+        <AnimateOnScroll key={product.id} delay={index * 100} animation="fade-up">
+          <ProductCard
+            product={product}
+            onAddToCart={() => onAddToCart?.(product)}
+            onToggleWishlist={() => onToggleWishlist?.(product.id)}
+            isWishlisted={wishlistedProducts.includes(product.id)}
+          />
+        </AnimateOnScroll>
       ))}
     </div>
   );

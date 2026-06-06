@@ -35,9 +35,11 @@ export default function WholesaleProductCard({ product }: WholesaleProductCardPr
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-gray-400 dark:text-gray-500">No image</span>
-            </div>
+            <img
+              src={`https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&q=80&auto=format&fit=crop`}
+              alt="Placeholder fashion model"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out opacity-90"
+            />
           )}
 
           {/* Overlay gradient */}

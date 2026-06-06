@@ -24,12 +24,26 @@ export default function CartPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <ShoppingBag className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+        <div className="text-center max-w-md mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600">
+            <ShoppingBag className="w-8 h-8" />
+          </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Sign in to view your cart</h1>
-          <Link to="/">
-            <Button>Continue Shopping</Button>
-          </Link>
+          <p className="text-gray-600 mb-8">You need an account to add items to your cart and complete checkout.</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg"
+              onClick={() => window.dispatchEvent(new Event('open-auth-modal'))}
+              className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto"
+            >
+              Sign In
+            </Button>
+            <Link to="/products" className="w-full sm:w-auto">
+              <Button variant="outline" size="lg" className="w-full">
+                Keep Shopping
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -75,9 +89,11 @@ export default function CartPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-xs text-gray-400">No image</span>
-                      </div>
+                      <img
+                        src={`https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&q=80&auto=format&fit=crop`}
+                        alt="Placeholder fashion model"
+                        className="w-full h-full object-cover opacity-90"
+                      />
                     )}
                   </div>
 

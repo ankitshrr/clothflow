@@ -17,20 +17,22 @@ export function WishlistTab() {
 
   if (wishlistItems.length === 0) {
     return (
-      <div className="p-8 text-center min-h-[300px] flex flex-col items-center justify-center animate-in fade-in duration-500">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-400">
-          <Heart className="w-8 h-8" />
+      <div className="p-8 text-center min-h-[400px] flex flex-col items-center justify-center animate-in fade-in duration-500">
+        <div className="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-500">
+            <Heart className="w-8 h-8" />
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">Your wishlist is empty</h3>
+          <p className="text-gray-600 mb-8 max-w-sm mx-auto">
+            Save items you love so you can find them easily later. Start exploring our collections!
+          </p>
+          <Link to="/products">
+            <Button size="lg" className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 border-rose-600">
+              <ShoppingBag className="w-5 h-5 mr-2" />
+              Discover Products
+            </Button>
+          </Link>
         </div>
-        <h3 className="text-lg font-bold text-gray-900 mb-2">Your wishlist is empty</h3>
-        <p className="text-gray-500 mb-6 max-w-sm">
-          Looks like you haven't added any items to your wishlist yet.
-        </p>
-        <Link to="/products">
-          <Button>
-            <ShoppingBag className="w-4 h-4 mr-2" />
-            Start Shopping
-          </Button>
-        </Link>
       </div>
     );
   }

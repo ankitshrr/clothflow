@@ -8,7 +8,7 @@
   }
 
   body {
-    @apply antialiased bg-background text-dark;
+    @apply antialiased bg-[#F9F8F6] text-gray-900;
   }
 }
 
